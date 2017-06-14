@@ -1,12 +1,13 @@
 # BUIP-HF Digest for replay protected signature verification across hard forks
 
 Version 1.0, 2017-06-14
+Version 1.1, 2017-06-14
 
 ## Abstract
 
 This document describes proposed requirements and design for a reusable signing mechanism ensuring replay protection in the event of a hard fork. It provides a way for users to create transactions which are invalid on forks lacking support for the mechanism and a fork-specific ID.
 
-The proposed digest algorithm is adapted from [BIP143](https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki) as it minimizes redundant data hashing in verification, covers the input value by the [signature][1] and is already implemented in a wide variety of applications.
+The proposed digest algorithm is adapted from [BIP143][1] as it minimizes redundant data hashing in verification, covers the input value by the [signature][2] and is already implemented in a wide variety of applications.
 
 The proposed digest algorithm is used when the `SIGHASH_FORKID` bit is set in the signature's sighash type. The verification of signatures which do not set this is bit is not affected.
 
@@ -79,7 +80,7 @@ The 8-byte value of the amount of bitcoin spent in this input.
 * Otherwise, `hashOutputs` is a `uint256` of `0x0000......0000`.
 
 Notes:
-1. In the [original algorithm][2], a `uint256` of `0x0000......0001` is committed if the input index for a `SINGLE` signature is greater than or equal to the number of outputs. In this BIP a `0x0000......0000` is committed, without changing the semantics.
+1. In the [original algorithm][3], a `uint256` of `0x0000......0001` is committed if the input index for a `SINGLE` signature is greater than or equal to the number of outputs. In this BIP a `0x0000......0000` is committed, without changing the semantics.
 
 #### sighash type
 
@@ -190,5 +191,6 @@ Gating code:
 
 ## References
 
-[1]: https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki#Motivation
-[2]: https://en.bitcoin.it/wiki/OP_CHECKSIG
+[1]: https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
+[2]: https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki#Motivation
+[3]: https://en.bitcoin.it/wiki/OP_CHECKSIG
