@@ -6,7 +6,7 @@ Version 1.1, 2017-06-14
 
 This document describes proposed requirements and design for a reusable signing mechanism ensuring replay protection in the event of a hard fork. It provides a way for users to create transactions which are invalid on forks lacking support for the mechanism and a fork-specific ID.
 
-The proposed digest algorithm is adapted from [BIP143][1] as it [minimizes redundant data hashing in verification, covers the input value by the signature and is already implemented in a wide variety of applications][2].
+The proposed digest algorithm is adapted from BIP143[[1]](#bip143) as it minimizes redundant data hashing in verification, covers the input value by the signature and is already implemented in a wide variety of applications[[2]](#bip143Motivation).
 
 The proposed digest algorithm is used when the `SIGHASH_FORKID` bit is set in the signature's sighash type. The verification of signatures which do not set this is bit is not affected.
 
@@ -44,7 +44,7 @@ The proposed digest algorithm computes the double SHA256 of the serialization of
 9. nLocktime of the transaction (4-byte little endian)
 10. sighash type of the signature (4-byte little endian)
 
-Items 1, 4, 7 and 9 have the same meaning as in [the original algorithm](https://en.bitcoin.it/wiki/OP_CHECKSIG).
+Items 1, 4, 7 and 9 have the same meaning as in the original algorithm[[3]](#OP_CHECKSIG).
 
 #### hashPrevouts
 
@@ -190,6 +190,8 @@ Gating code:
 
 ## References
 
-[1]: https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
-[2]: https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki#Motivation
-[3]: https://en.bitcoin.it/wiki/OP_CHECKSIG
+<a name="bip143">[1]</a> https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
+
+<a name="bip143Motivation">[2]</a> https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki#Motivation
+
+<a name="OP_CHECKSIG">[3]</a> https://en.bitcoin.it/wiki/OP_CHECKSIG
