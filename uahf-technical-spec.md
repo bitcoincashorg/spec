@@ -130,7 +130,7 @@ as follows:
 
 1. maximum sigops per block shall be calculated based on the actual size of
 a block using
-`max_block_sigops = 20000 * ceil((max(blocksize_bytes, 1000000) / 1000000))`
+`max_block_sigops = 20000 * ceil((max(blocksize_bytes, 1000000) / 1000000.0))`
 
 2. maximum allowed size of a single transaction shall be 1,000,000 bytes
 
