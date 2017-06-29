@@ -19,8 +19,9 @@ MTP: the "median time past" value of a block, calculated from the
 nTime values of its past up to 11 ancestors, as obtained by the
 GetMedianTimePast(block.parent) call.
 
-"activation time": a block whose MTP is after this time
-shall comply with the new consensus rules introduced by this UAHF.
+"activation time": once the MTP of the chain tip is equal to or greater
+than this time, the next block must be a valid fork block. The fork block
+and subsequent blocks built on it must satisfy the new consensus rules.
 
 "fork block": the first block in the active chain whose nTime is past the
 activation time.
