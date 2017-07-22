@@ -230,6 +230,18 @@ client with legacy chain / i.e. to decide to not follow the HF on one's
 node / make a decision at late stage without needing to change client.
 
 
+### OPT-SERVICEBIT (NODE_BITCOIN_CASH service bit)
+
+The client should implement service bit 5 (value 0x20), hencewith called
+NODE_BITCOIN_CASH and represented in short form as "CASH".
+
+RATIONALE: This service bit allows signaling that the node is a UAHF
+supporting node, which helps DNS seeders distinguish UAHF implementations.
+
+NOTE: This is an optional feature which clients do not strictly have to
+implement.
+
+
 ## References
 
 [1] https://bitco.in/forum/threads/buip040-passed-emergent-consensus-parameters-and-defaults-for-large-1mb-blocks.1643/
