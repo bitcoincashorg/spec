@@ -232,7 +232,7 @@ node / make a decision at late stage without needing to change client.
 
 ### OPT-SERVICEBIT (NODE_BITCOIN_CASH service bit)
 
-The client should implement service bit 5 (value 0x20), hencewith called
+The client should implement service bit 5 (value 0x20), further called
 NODE_BITCOIN_CASH and represented in short form as "CASH".
 
 RATIONALE: This service bit allows signaling that the node is a UAHF
