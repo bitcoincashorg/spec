@@ -1,6 +1,6 @@
 # UAHF Technical Specification
 
-Version 1.5, 2017-07-22
+Version 1.6, 2017-07-24
 
 
 ## Introduction
@@ -157,42 +157,50 @@ with a specific magic data value of
 without any terminating null character) shall be considered invalid until
 block 530,000 inclusive.
 
-RATIONALE: To give users on the legacy chain (or other fork chains)
+RATIONALE: (DEPRECATED - see NOTE 2) To give users on the legacy chain (or other fork chains)
 an opt-in way to exclude their transactions from processing on the UAHF
 fork chain. The sunset clause block height is calculated as approximately
 1 year after currently planned UASF activation time (Aug 1 2017 00:00:00 GMT),
 rounded down to a human friendly number.
 
-NOTE: Transactions with such OP_RETURNs shall be considered valid again
+NOTE 1: Transactions with such OP_RETURNs shall be considered valid again
 for block 530,001 and onwards.
 
+NOTE 2: With the changes in v1.6 of this specification, mandatory use
+of SIGHASH_FORKID replay protection on UAHF chain makes the use of this
+opt-out protection unnecessary. Clients should nevertheless implement this
+requirement, as removing it would constitute a hard fork vis-a-vis the
+existing network. The sunset clause in this requirement will take care
+of its expiry by itself.
 
-### REQ-6-2 (opt-in signature shift via hash type)
 
-Once the fork has activated, a transaction shall not be deemed invalid if
-the following are true in combination:
-- the nHashType has bit 6 set (mask 0x40)
-- adding a magic 'fork id' value to the nHashType before the hash is
-  calculated allows a successful signature verification as per REQ-6-3
+### REQ-6-2 (mandatory signature shift via hash type)
 
-RATIONALE: To give users on the UAHF chain an opt-in way to encumber
-replay of their transactions to the legacy chain (and other forks which may
-consider such transactions invalid).
+Once the fork has activated, a transaction shall be deemed invalid if
+its nHashType does not have bit 6 set (SIGHASH_FORKID, mask 0x40) and it
+is not using the new digest algorithm described in REQ-6-3.
 
-NOTE 1: It is possible for other hard forks to defeat this protection by
-implementing a compatible signature check that accepts transactions
-signed in this special way. However, this does require a counter hard fork.
+RATIONALE: To provide strong protection against replay of existing
+transactions on the UAHF chain, only transactions signed with the new
+hash algorithm and having SIGHASH_FORKID set will be accepted, by consensus.
 
-NOTE 2: The client shall still accept transactions whose signatures
-verify according to pre-fork rules, subject to the additional OP_RETURN
-constraint introduced by REQ-6-1.
+NOTE 1: It is possible for other hard forks to allow SIGHASH_FORKID-protected
+transactions on their chain by implementing a compatible signature.
+However, this does require a counter hard fork by legacy chains.
 
-NOTE 3: If bit 6 is not set, only the unmodified nHashType will be used
-to compute the hash and verify the signature.
+NOTE 2: (DEPRECATED) ~~The client shall still accept transactions whose signatures~~
+~~verify according to pre-fork rules, subject to the additional OP_RETURN~~
+~~constraint introduced by REQ-6-1.~~
+
+NOTE 3: (DEPRECATED) ~~If bit 6 is not set, only the unmodified nHashType will be used~~
+~~to compute the hash and verify the signature.~~
 
 NOTE 4: The magic 'fork id' value used by UAHF-compatible clients is zero.
 This means that the change in hash when bit 6 is set is effected only by
 the adapted signing algorithm (see REQ-6-3).
+
+NOTE 5: See also REQ-6-4 which introduces a requirement for use of
+SCRIPT_VERIFY_STRICTENC.
 
 
 ### REQ-6-3 (use adapted BIP143 hash algorithm for protected transactions)
@@ -206,6 +214,15 @@ RATIONALE: see Motivation section of BIP143 [2].
 NOTE 1: refer to [3] for the specificaton of the revised transaction
 digest based on BIP143. Revisions were made to account for non-Segwit
 deployment.
+
+
+### REQ-6-4 (mandatory use of SCRIPT_VERIFY_STRICTENC)
+
+Once the fork has activated, a transaction shall be deemed invalid if
+it does not have the SCRIPT_VERIFY_STRICTENC flag set.
+
+RATIONALE: SCRIPT_VERIFY_STRICTENC ensure that the nHashType is validated
+properly.
 
 
 ### REQ-7 Difficulty adjustement in case of hashrate drop
