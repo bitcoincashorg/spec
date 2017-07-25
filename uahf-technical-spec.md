@@ -221,11 +221,15 @@ deployment.
 
 ### REQ-6-4 (mandatory use of SCRIPT_VERIFY_STRICTENC)
 
-Once the fork has activated, a transaction shall be deemed invalid if
-it does not have the SCRIPT_VERIFY_STRICTENC flag set.
+Once the fork has activated, transactions shall be validated with
+SCRIPT_VERIFY_STRICTENC flag set.
 
-RATIONALE: SCRIPT_VERIFY_STRICTENC ensure that the nHashType is validated
-properly.
+RATIONALE: Use of SCRIPT_VERIFY_STRICTENC also ensures that the
+nHashType is validated properly.
+
+NOTE: As SCRIPT_VERIFY_STRICTENC is not clearly defined by BIP,
+implementations seeking to be compliant should consult the Bitcoin C++
+source code to emulate the checks enforced by this flag.
 
 
 ### REQ-7 Difficulty adjustement in case of hashrate drop
