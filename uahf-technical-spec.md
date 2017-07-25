@@ -84,12 +84,13 @@ NOTE 1: Configuring a "activation time" value of zero (0) shall disable
 any UAHF hard fork special rules (see REQ-DISABLE)
 
 
-### REQ-3 (fork block must be > 1MB)
+### REQ-3 (fork block must contain at least one new sighash transaction)
 
-The client shall enforce a block size larger than 1,000,000 bytes
-for the fork block.
+The client shall enforce that the fork block contains at least one
+transaction signed as specified by REQ-6-2.
 
-RATIONALE: This enforces the hard fork from the original 1MB
+RATIONALE: This means that the fork block will be invalid on the original
+1MB chain.  It enforces the hard fork from the original 1MB
 chain and prevents a re-organization of the forked chain to
 the original chain.
 
