@@ -237,6 +237,10 @@ In case the MTP of the tip of the chain is 12h or more after the MTP 6 block
 before the tip, the proof of work target is increased by a quarter, or 25%,
 which corresponds to a difficulty reduction of 20% .
 
+To avoid a second hardfork to remove this temporary measurement again, this
+special adjustment rule will only be valid for 8 full difficulty adjustment
+periods or until 2018-01-01 00:00. Whichever comes first.
+
 RATIONALE: The hashrate supporting the chain is dependent on market price and
 hard to predict. In order to make sure the chain remains viable no matter what
 difficulty needs to adjust down in case of abrupt hashrate drop.
