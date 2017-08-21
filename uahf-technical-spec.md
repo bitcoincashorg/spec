@@ -267,6 +267,13 @@ NOTE 2: This bit is currently referred to as NODE_BITCOIN_CASH and displayed
 as "CASH" in user interfaces of some Bitcoin clients (BU, ABC).
 
 
+### OPT-ADDRPREFIX (P2PKH and P2SH address version prefix)
+
+A UAHF-compatible client should use a P2PKH address version prefix of 28
+(resulting in a leading base58 digit of "C") and a P2SH address version
+prefix of 40 (resulting in a leading base58 digit of "H")
+
+
 ## References
 
 [1] https://bitco.in/forum/threads/buip040-passed-emergent-consensus-parameters-and-defaults-for-large-1mb-blocks.1643/
