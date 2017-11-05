@@ -17,8 +17,8 @@ To calculate the difficulty of a given block (B_n+1), with an MTP-11[1] greater 
 * NOTE: Implementations must use integer arithmetic only
 
 1. Let B_n be the Nth block in a Bitcoin Cash Blockchain.
-1. Let B_last be chosen[2] from [B_n, B_n-1, B_n-2].
-1. Let B_first be chosen[2] from [B_n-144, B_n-145, B_n-146].
+1. Let B_last be chosen[2] from [B_n-2, B_n-1, B_n].
+1. Let B_first be chosen[2] from [B_n-146, B_n-145, B_n-144].
 1. Let the Timespan (TS) be equal to the difference in UNIX timestamps (in seconds) between B_last and B_first within the range [72 * 600, 288 * 600].  Values outside should be treated as their respective limit
 1. Let the Work Performed (W) be equal to the difference in chainwork[3] between B_last  and B_first.
 1. Let the Projected Work (PW) be equal to (W * 600) / TS.
@@ -72,7 +72,7 @@ Footnotes
 ---------
 1. The MTP-11 of a block is defined as the median timestamp of the last 11 blocks prior to, and including, a specific block
 2. A block is chosen via the following mechanism:
-   Given a an ordered set: S = [B_n, B_n+1, B_n+2]
+   Given a list: S = [B_n-2, B_n-1, B_n]
    a. If timestamp(S[0]) greater than timestamp(S[2]) then swap S[0] and S[2].
    b. If timestamp(S[0]) greater than timestamp(S[1]) then swap S[0] and S[1].
    c. If timestamp(S[1]) greater than timestamp(S[2]) then swap S[1] and S[2].
