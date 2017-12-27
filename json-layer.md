@@ -11,19 +11,15 @@ Suggestion to add the JSON Layer as option in transactions, in which we can add 
 - Example:
 
 ```
-{"type":"dm"
-"version": "1.0"
-"encoding":"pk-sha256"
+{"type":"dm",
 "message":"<message encoded using public key of the receiver>"
 }
 ```
-- The reason we have version number, is to be able to change the json protocol under a specific type later on.
 
 ## Global Message
 - Example:
 ```
 {"type":"gm"
-"version":"1.0"
 "latitude":137.567
 "longitude":43.7698
 "message":"Hello world"
