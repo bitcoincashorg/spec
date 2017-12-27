@@ -19,9 +19,9 @@ Suggestion to add the JSON Layer as option in transactions, in which we can add 
 ## Global Message
 - Example:
 ```
-{"type":"gm"
-"latitude":137.567
-"longitude":43.7698
+{"type":"gm",
+"latitude":137.567,
+"longitude":43.7698,
 "message":"Hello world"
 }
 ```
