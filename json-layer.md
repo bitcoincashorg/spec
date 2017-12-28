@@ -17,6 +17,8 @@ Version: 1.0, 2017-12-27
 }
 ```
 
+- The message is encoded by public key of the receiver and decoded by his private key.
+
 ## Global Message
 - Example:
 ```
@@ -40,3 +42,10 @@ so we can just say something like transfer 0 coins from sender address to sender
 
 ## Retrieval
 - Users can retrieve the messages they interested in based on location, name, or topic. The transactions which has global message could be identified by having a money transfer of amount 0.0 from one address to the same address.
+
+## HushList comparison
+- While (hushlist)[https://github.com/leto/hushlist] is a good start, it is different from GMP and it has 2 issues:
+1. The idea of having mail lists meta data outside the blockchain, will make it centralized and under censorship. 
+2. The list capacity is only 54 which is too low. Also increasing it in following versions will include sending the message through multiple transactions which means more transaction fees.
+
+- However in GMP, anyone can send a global message tied to a location (optional), and has a topic, which will enable anyone to filter the messages by location, topic, or name. No need to maintain/worry about subscription lists.
