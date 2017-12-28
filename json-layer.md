@@ -44,7 +44,7 @@ so we can just say something like transfer 0 coins from sender address to sender
 - Users can retrieve the messages they interested in based on location, name, or topic. The transactions which has global message could be identified by having a money transfer of amount 0.0 from one address to the same address.
 
 ## Hushlist comparison
-- While [hushlist](https://github.com/leto/hushlist) is a good start, it is different from GMP and it has 2 issues:
+- While [Hushlist](https://github.com/leto/hushlist) is a good start, it is different from GMP and it has 2 issues:
 1. The idea of having mail lists meta data outside the blockchain, will make it centralized and under censorship. 
 2. The list capacity is only 54 which is too low. Also increasing it in following versions will include sending the message through multiple transactions which means more transaction fees.
 
