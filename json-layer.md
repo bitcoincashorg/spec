@@ -36,6 +36,14 @@ so we can just say something like transfer 0 coins from sender address to sender
 
 ## Other types
 - We can add any other message types later as needed.
+- Example:
+```
+{"type":"<other type>",
+"field1":value1,
+"field2":value2,
+...
+}
+```
 
 ## Storage
 - These messages will be stored in the blockchain, either in the memo field or any other field. Currently the Bitcoin blockchain has memo field with size 80 bytes only, which is too small. So we need to figure out another field. Otherwise we can implement this protocol in other forks like Zcash, which has memo field with 512 bytes.
