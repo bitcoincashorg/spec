@@ -1,10 +1,11 @@
-# JSON Layer Protocol
+# Global Messaging Protocol
 
 Version: 1.0, 2017-12-27
 
 ## Introduction
 
-Suggestion to add the JSON Layer as option in transactions, in which we can add things like direct messages, or global messaging.
+- Suggestion to add Global Messaging Protocol over the blockchain protocol, in which we can add things like direct messages, or global messaging.
+- What we are trying to achieve here is to build a Global Messaging ability, like Twitter but without centralized authority. Also having to pay for those messages will keep them short in number, and increase the usability of crypto currencies in general.
 
 ## Direct Message
 
