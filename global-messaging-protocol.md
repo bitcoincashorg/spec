@@ -45,16 +45,11 @@ so we can just say something like transfer 0 coins from sender address to sender
 }
 ```
 
-## Storage
-- These messages will be stored in the blockchain, either in the memo field or any other field. Currently the Bitcoin blockchain has memo field with size 80 bytes only, which is too small. One way to go around this limitation, if possible we can span our message into multiple op_return outputs with 80 bytes each.
-
-Otherwise we can implement this protocol in other forks like Zcash, which has memo field with 512 bytes.
-
-## Retrieval
-- Users can retrieve the messages they interested in based on location, name, or topic. The transactions which has global message could be identified by having a money transfer of amount 0.0 from one address to the same address.
+## Messaging Blockchains
+- Implemeting GMP on currency blockchains like BTC or BCH, or smart contract blockchains like ETH, would add to the already overloaded capacity and storage of them. The best way is to use a specialized blockchain for messaging only. An Example of that is the Hash blockchain.
 
 ## Hushlist comparison
-- While [Hushlist](https://github.com/leto/hushlist) is a good start, it is different from GMP and it has 2 issues:
+- While [Hushlist](https://github.com/leto/hushlist) is a good start. However, it is different from GMP and it has 2 issues:
 1. The idea of having mail lists meta data outside the blockchain, will make it centralized and under censorship. 
 2. The list capacity is only 54 which is too low. Also increasing it in following versions will include sending the message through multiple transactions which means more transaction fees.
 
