@@ -22,6 +22,7 @@ Suggestion to add the JSON Layer as option in transactions, in which we can add 
 {"type":"gm",
 "latitude":137.567,
 "longitude":43.7698,
+"topic":"Hello",
 "message":"Hello world"
 }
 ```
@@ -31,3 +32,9 @@ so we can just say something like transfer 0 coins from sender address to sender
 
 ## Other types
 - We can add any other message types later as needed.
+
+## Storage
+- These messages will be stored in the blockchain, either in the memo field or any other field.
+
+## Retrieval
+- Users can retrieve the messages they interested in based on location, or topics, or both. The transactions which has global message could be identified by having a money transfer of amount 0.0 from one address to the same address.
