@@ -22,6 +22,7 @@ Suggestion to add the JSON Layer as option in transactions, in which we can add 
 {"type":"gm",
 "latitude":137.567,
 "longitude":43.7698,
+"name":"Jack",
 "topic":"Hello",
 "message":"Hello world"
 }
@@ -37,4 +38,4 @@ so we can just say something like transfer 0 coins from sender address to sender
 - These messages will be stored in the blockchain, either in the memo field or any other field. Currently the Bitcoin blockchain has memo field with size 80 bytes only, which is too small. So we need to figure out another field. Otherwise we can implement this protocol in other forks like Zcash, which has memo field with 512 bytes.
 
 ## Retrieval
-- Users can retrieve the messages they interested in based on location, or topics, or both. The transactions which has global message could be identified by having a money transfer of amount 0.0 from one address to the same address.
+- Users can retrieve the messages they interested in based on location, name, or topic. The transactions which has global message could be identified by having a money transfer of amount 0.0 from one address to the same address.
