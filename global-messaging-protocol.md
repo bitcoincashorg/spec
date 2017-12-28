@@ -46,7 +46,7 @@ so we can just say something like transfer 0 coins from sender address to sender
 ```
 
 ## Messaging Blockchains
-- Implemeting GMP on currency blockchains like BTC or BCH, or smart contract blockchains like ETH, would add to the already overloaded capacity and storage of them. The best way is to use a specialized blockchain for messaging only. An Example of that is the Hash blockchain.
+- Implemeting GMP on currency blockchains like BTC or BCH, or smart contract blockchains like ETH, would add to the already overloaded capacity and storage of them. The best way is to use a specialized blockchain for messaging only. An Example of that is the Hush blockchain.
 
 ## Hushlist comparison
 - While [Hushlist](https://github.com/leto/hushlist) is a good start. However, it is different from GMP and it has 2 issues:
