@@ -17,7 +17,7 @@
 }
 ```
 
-- t: type (required)
+- t: type (optional, by default it is gm (Global Message))
 - c: content (required)
 - The message is encoded by public key of the receiver and decoded by his private key.
 
@@ -41,7 +41,7 @@
 - Short form example:
 
 ```
-{"t":"gm","tp":"Hello","c":"www.helloworld.com/hello.html"}
+{"tp":"Hello","c":"www.helloworld.com/hello.html"}
 ```
 
 - c: content (required), it can be text, or a URL refering to any resource in the internet, e.g. html, txt, md, jpg, mpg, png, pdf, ...
