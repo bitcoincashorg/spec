@@ -62,6 +62,7 @@ so we can just say something like transfer 0 coins from sender address to sender
 ## Hushlist comparison
 - While [Hushlist](https://github.com/leto/hushlist) is a good start. However, it is different from GMP and it has 2 issues:
 1. The idea of having mail lists meta data outside the blockchain, will make it centralized and under censorship. 
-2. The list capacity is only 54 which is too low. Also increasing it in following versions will include sending the message through multiple transactions which means more transaction fees.
+2. The list capacity is only 54 which is too low. Also increasing it in following versions will include sending the message through multiple transactions which means more transaction fees. However in GMP, anyone can send a global message tied to a location (optional), and has a topic, which will enable anyone to filter the messages by location, topic, or name. No need to maintain/worry about subscription lists.
+3. Hushlist emphasys the use of zaddr. In GMP, hiding the address is not really important, as the user can always change his address, they are almost free. Also we need to know user addresse so other users be able to block them if needed.
 
-- However in GMP, anyone can send a global message tied to a location (optional), and has a topic, which will enable anyone to filter the messages by location, topic, or name. No need to maintain/worry about subscription lists.
+
