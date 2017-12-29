@@ -68,5 +68,5 @@ so we can just say something like transfer 0 coins from sender address to sender
 
 ## References
 
-1. Mercer, David 2017 [HushList Protocol Specification](https://github.com/leto/hushlist/blob/master/whitepaper/protocol.pdf)
+1. David Mercer 2017 [HushList Protocol Specification](https://github.com/leto/hushlist/blob/master/whitepaper/protocol.pdf)
 2. Radical App International 2017 [Mercury Protocol](https://www.mercuryprotocol.com/files/Mercury_Protocol_whitepaper.pdf)
