@@ -29,7 +29,7 @@ Version: 1.0, 2017-12-28
 "ln":43.7698,
 "n":"Jack",
 "tp":"Hello",
-"c":"<text or URL>"
+"c":"Hello World"
 }
 ```
 
@@ -37,6 +37,13 @@ Version: 1.0, 2017-12-28
 - ln: longitude (optional)
 - n: name (optional)
 - tp: topic (required)
+
+- Short form example:
+
+```
+{"t":"gm","tp":"Hello","c":"www.helloworld.com/hello.html"}
+```
+
 - c: content (required), it can be text, or a URL refering to any resource in the internet, e.g. html, txt, md, jpg, mpg, png, pdf, ...
 - The reason we have latitude and longitude is if the user wants to associate this global message to a specific location in the world.
 - In case of Global Message, there will be a regular transaction fee, but there is no need to specify sending money info from one address to another, and if this is required by the existing protocol, 
