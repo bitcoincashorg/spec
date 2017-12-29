@@ -29,7 +29,7 @@ Version: 1.0, 2017-12-28
 "ln":43.7698,
 "n":"Jack",
 "tp":"Hello",
-"c":"Hello world"
+"c":"<text or URL>"
 }
 ```
 
@@ -37,6 +37,7 @@ Version: 1.0, 2017-12-28
 - ln: longitude (optional)
 - n: name (optional)
 - tp: topic (required)
+- c: content (required), it can be text, or a URL refering to any resource in the internet, e.g. html, txt, md, jpg, mpg, png, pdf, ...
 - The reason we have latitude and longitude is if the user wants to associate this global message to a specific location in the world.
 - In case of Global Message, there will be a regular transaction fee, but there is no need to specify sending money info from one address to another, and if this is required by the existing protocol, 
 so we can just say something like transfer 0 coins from sender address to sender address.
@@ -53,14 +54,14 @@ so we can just say something like transfer 0 coins from sender address to sender
 ```
 
 ## Storage
-- These messages will be stored in the blockchain, in the memo field. However, currently Bitcoin blockchains has memo field with size 80 bytes only, which is too small. To go around this limitation we can store instead a url to a Bitcoin Global Message, like http://www.company.com/message.bgm, which is a json message in GMP format.
+- These messages will be stored in the blockchain, in the memo field. However, currently Bitcoin blockchains has memo field with size 80 bytes only, which is too small. To go around this limitation we can put in the content field a url to any online resource, text, image, or video.
 
 
 ## Retrieval
 - Users can retrieve the messages they interested in based on location, name, or topic. The transactions which has global message could be identified by having a money transfer of amount 0.0 from one address to the same address.
 
 ## HushList comparison
-- While [HushList](https://github.com/leto/hushlist) is a good start. However, it is different from GMP and it has 2 issues:
+- [HushList](https://github.com/leto/hushlist) is different from GMP and it has 2 issues:
 1. The idea of having mail lists meta data outside the blockchain, will make it centralized and under censorship. 
 2. The list capacity is only 54 which is too low. Also increasing it in following versions will include sending the message through multiple transactions which means more transaction fees. However in GMP, anyone can send a global message tied to a location (optional), and has a topic, which will enable anyone to filter the messages by location, topic, or name. No need to maintain/worry about subscription lists.
 3. Hushlist emphasys the use of zaddr. In GMP, hiding the address is not really important, as the user can always change his address, they are almost free. Also we need to know user addresse so other users be able to block them if needed.
