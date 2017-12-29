@@ -17,8 +17,8 @@ Version: 1.0, 2017-12-28
 }
 ```
 
-- t: type
-- c: content
+- t: type (required)
+- c: content (required)
 - The message is encoded by public key of the receiver and decoded by his private key.
 
 ## Global Message
@@ -33,10 +33,10 @@ Version: 1.0, 2017-12-28
 }
 ```
 
-- lt: latitude
-- ln: longitude
-- n: name
-- tp: topic
+- lt: latitude (optional)
+- ln: longitude (optional)
+- n: name (optional)
+- tp: topic (required)
 - The reason we have latitude and longitude is if the user wants to associate this global message to a specific location in the world.
 - In case of Global Message, there will be a regular transaction fee, but there is no need to specify sending money info from one address to another, and if this is required by the existing protocol, 
 so we can just say something like transfer 0 coins from sender address to sender address.
