@@ -1,6 +1,6 @@
 # Global Messaging Protocol
 
-Version: 1.0, 2017-12-28
+- Author: Amr Aboelela; December 28, 2017
 
 ## Introduction
 
