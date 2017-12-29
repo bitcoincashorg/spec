@@ -64,7 +64,7 @@ so we can just say something like transfer 0 coins from sender address to sender
 ```
 
 ## Storage
-- These messages will be stored in the blockchain, in the memo field. However, currently Bitcoin blockchains has memo field with size 80 bytes only, which is too small. To go around this limitation we can put in the content field a url to any online resource, text, image, or video.
+- These messages will be stored in the blockchain, in the memo field. However, currently Bitcoin blockchains has memo field with size 80 bytes only, which is too small. To go around this limitation we can the short form as mentioned above, e.g. `{"tp":"Hello","l":"www.helloworld.com/hello.html"}`
 
 
 ## Retrieval
