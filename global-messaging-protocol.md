@@ -53,7 +53,7 @@ so we can just say something like transfer 0 coins from sender address to sender
 ```
 
 ## Storage
-- These messages will be stored in the blockchain, in the memo field. However, currently Bitcoin blockchains has memo field with size 80 bytes only, which is too small. To go around this limitation we can store instead a url to a Bitcon Global Message, like http://www.company.com/message.bgm, which is a json message in GMP format.
+- These messages will be stored in the blockchain, in the memo field. However, currently Bitcoin blockchains has memo field with size 80 bytes only, which is too small. To go around this limitation we can store instead a url to a Bitcoin Global Message, like http://www.company.com/message.bgm, which is a json message in GMP format.
 
 
 ## Retrieval
