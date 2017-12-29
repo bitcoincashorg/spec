@@ -13,13 +13,16 @@
 
 ```
 {"t":"dm",
-"c":"<message encoded using public key of the receiver>"
+"tx":"<message encoded using public key of the receiver>",
+"l":"<url encoded using public key of the receiver>"
 }
 ```
 
 - t: type (optional, by default it is gm (Global Message))
-- c: content (required)
-- The message is encoded by public key of the receiver and decoded by his private key.
+- tx: Text content
+- l: url link
+- The text and the url are encoded by public key of the receiver and decoded by his private key.
+- The message is required to have either text or url fields or both
 
 ## Global Message
 - Example:
@@ -29,7 +32,7 @@
 "ln":43.7698,
 "n":"Jack",
 "tp":"Hello",
-"c":"Hello World"
+"tx":"Hello World"
 }
 ```
 
@@ -41,10 +44,10 @@
 - Short form example:
 
 ```
-{"tp":"Hello","c":"www.helloworld.com/hello.html"}
+{"tp":"Hello","l":"www.helloworld.com/hello.html"}
 ```
 
-- c: content (required), it can be text, or a URL refering to any resource in the internet, e.g. html, txt, md, jpg, mpg, png, pdf, ...
+- The URL refers to any resource in the internet, e.g. html, txt, md, jpg, mpg, png, pdf, ...
 - The reason we have latitude and longitude is if the user wants to associate this global message to a specific location in the world.
 - In case of Global Message, there will be a regular transaction fee, but there is no need to specify sending money info from one address to another, and if this is required by the existing protocol, 
 so we can just say something like transfer 0 coins from sender address to sender address.
