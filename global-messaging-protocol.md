@@ -12,24 +12,31 @@ Version: 1.0, 2017-12-28
 - Example:
 
 ```
-{"type":"dm",
-"message":"<message encoded using public key of the receiver>"
+{"t":"dm",
+"c":"<message encoded using public key of the receiver>"
 }
 ```
 
+- t: type
+- c: content
 - The message is encoded by public key of the receiver and decoded by his private key.
 
 ## Global Message
 - Example:
 ```
-{"type":"gm",
-"latitude":137.567,
-"longitude":43.7698,
-"name":"Jack",
-"topic":"Hello",
-"message":"Hello world"
+{"t":"gm",
+"lt":137.567,
+"ln":43.7698,
+"n":"Jack",
+"tp":"Hello",
+"c":"Hello world"
 }
 ```
+
+- lt: latitude
+- ln: longitude
+- n: name
+- tp: topic
 - The reason we have latitude and longitude is if the user wants to associate this global message to a specific location in the world.
 - In case of Global Message, there will be a regular transaction fee, but there is no need to specify sending money info from one address to another, and if this is required by the existing protocol, 
 so we can just say something like transfer 0 coins from sender address to sender address.
@@ -38,7 +45,7 @@ so we can just say something like transfer 0 coins from sender address to sender
 - We can add any other message types later as needed.
 - Example:
 ```
-{"type":"<other type>",
+{"t":"<other type>",
 "field1":value1,
 "field2":value2,
 ...
@@ -46,9 +53,8 @@ so we can just say something like transfer 0 coins from sender address to sender
 ```
 
 ## Storage
-- These messages will be stored in the blockchain, either in the memo field. Currently the Bitcoin blockchain has memo field with size 80 bytes only, which is too small. One way to go around this limitation, if possible we can span our message into multiple op_return outputs with 80 bytes each.
+- These messages will be stored in the blockchain, in the memo field. However, currently Bitcoin blockchains has memo field with size 80 bytes only, which is too small. To go around this limitation we can store instead a url to a Bitcon Global Message, like http://www.company.com/message.bgm, which is a json message in GMP format.
 
-- Otherwise we can implement this protocol in other blockchains like Zcash, which has memo field with 512 bytes.
 
 ## Retrieval
 - Users can retrieve the messages they interested in based on location, name, or topic. The transactions which has global message could be identified by having a money transfer of amount 0.0 from one address to the same address.
