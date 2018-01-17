@@ -1,6 +1,6 @@
 # Address format for Bitcoin Cash
 
-Version 1.0, 2017-10-13
+Version 1.1, 2018-01-16
 
 ## Abstract
 
@@ -106,6 +106,8 @@ Input data (list of integers) for PolyMod function is assembled from these parts
 2. A zero for the separator (5 zero bits).
 3. Each base32 char of the payload mapped to it's respective number.
 If PolyMod returns non-zero, then the address was broken.
+
+(NOTE: When encoding an address the checksum bits of the payload should be zeros, and then be replaced with the 40-bit result.)
 
 The following adresses can be used as test vector for checksum computation:
  - prefix:x64nx6hz
