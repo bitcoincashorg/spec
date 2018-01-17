@@ -1,6 +1,6 @@
 # Address format for Bitcoin Cash
 
-Version 1.0, 2017-10-13
+Version 1.1, 2018-01-16
 
 ## Abstract
 
@@ -95,6 +95,8 @@ The checksum is calculated over the following data:
 1. The lower 5 bits of each characters of the prefix.
 2. A zero for the separator (5 zero bits).
 3. The payload by chunks of 5 bits. The payload is padded with zero bits up to the point where it is a multiple of 5 bits.
+
+(NOTE: When encoding an address the checksum bits of the payload should be zeros, and then be replaced with the 40-bit result.)
 
 The following adresses can be used as test vector for checksum computation:
  - prefix:x64nx6hz
