@@ -119,8 +119,29 @@ Unit tests:
 7. `x y OP_CAT → concat(x,y)` – concatenating two operands generates the correct result
 
 ### OP_SPLIT
+Split the operand at the given position.
 
-TODO
+    x n OP_SPLIT -> x1 x2
+
+Notes:
+* `x` is split at position `n`, where `n` is the number of bytes from the beginning
+* `x1` will be the first `n` bytes of `x` and `x2` will be the remaining bytes 
+* if `n == 0`, then `x1` is the empty array and `x2 == x`
+* if `n >= len(x)`, then `x1 == x` and `x2` is the empty array
+* `x n OP_SPLIT OP_CAT` -> `x` - for all `x` and for all `n >= 0`
+    
+The operator must fail if:
+* `!isnum(n)` - `n` is not a number
+* `n < 0` - `n` is negative
+
+Impact of successful execution:
+* stack memory use is constant (slight reduction by `len(n)`)
+* number of elements on stack is constant
+
+Unit tests:
+* `OP_0 n OP_SPLIT -> OP_0 OP_0`, for all positive numbers n - execution of OP_SPLIT on empty array results in two empty arrays
+* `x 0 OP_SPLIT -> OP_0 x`
+* `x len(x) OP_SPLIT -> x OP_0` 
 
 ### OP_AND
 
