@@ -72,17 +72,18 @@ a more complex op code.  Input conditions that create ambiguous or undefined beh
 Each op code should be examined for the following risk conditions and mitigating behaviour defined explcitly:
 * Operand byte length mismatch.  Where it would be normally expected that two operands would be of matching byte lengths
 the resultant behaviour should be defined.
-* TODO signed integer issues
-* TODO stack size issues - limit operand and output size
+* Signed integer.  Whether signed integers are permitted operands and whether any special handling is required.
+* Stack size.  Both number of elements and total size of elements. 
 * TODO resource (CPU) utilization - exponential cycle cost attacks
-* TODO overflow issue, e.g. OP_MUL overflowing int32 or int64 or uint256
+* Overflows.  Defined behaviour in the instance that result of the operation exceeds MAX_SCRIPT_ELEMENT_SIZE
 * TODO endian issues ???
-* TODO empty byte vector operands
-* TODO clarify ordering of operands, top of stack is last operand (consider op_cat)
+* Empty byte vector operands.  Whether empty byte vectors should be allowed as a representation of zero.
 
 ## Definitions
 
-* *Stack memory use* - sum of the size of the elements on the stack - gives an indication of impact on memory use 
+* *Stack memory use* - sum of the size of the elements on the stack - gives an indication of impact on memory use
+* *Operand order* - in keeping with convention where multiple operands are specified the top most stack item is the 
+last operand.  e.g. `x1 x2 OP_CAT` --> x2 is the top stack item and x1 is the next from the top
 
 ## Specification
 
@@ -127,7 +128,9 @@ Notes:
 * `x` is split at position `n`, where `n` is the number of bytes from the beginning
 * `x1` will be the first `n` bytes of `x` and `x2` will be the remaining bytes 
 * if `n == 0`, then `x1` is the empty array and `x2 == x`
-* if `n >= len(x)`, then `x1 == x` and `x2` is the empty array
+* *RULE OPTIONS*
+    * Liberal: if `n >= len(x)`, then `x1 == x` and `x2` is the empty array. OR
+    * Restrictive: if `n > len(x)`, then the operator fail.
 * `x n OP_SPLIT OP_CAT` -> `x` - for all `x` and for all `n >= 0`
     
 The operator must fail if:
