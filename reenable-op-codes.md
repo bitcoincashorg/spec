@@ -84,6 +84,9 @@ the resultant behaviour should be defined.
 * *Stack memory use* - sum of the size of the elements on the stack - gives an indication of impact on memory use
 * *Operand order* - in keeping with convention where multiple operands are specified the top most stack item is the 
 last operand.  e.g. `x1 x2 OP_CAT` --> x2 is the top stack item and x1 is the next from the top
+* *Rule options* - For the purposes of this draft and for further discussion some rules are presented with options.
+These are denoted by the heading *RULE OPTION* followed by an ordered list.  Generally the options will be a choice
+between a restrictive and a more liberal rule.
 
 ## Specification
 
@@ -131,6 +134,9 @@ Notes:
 * *RULE OPTIONS*
     * Liberal: if `n >= len(x)`, then `x1 == x` and `x2` is the empty array. OR
     * Restrictive: if `n > len(x)`, then the operator fail.
+    * Discussion: Arguably allowing n > len(x) opens the possibility of a script continuing to run under unexpected
+        conditions.  The restrictive option eliminates out-of-bounds errors.  Whilst potentially placing the burden
+        on the script author to do an additional length check.
 * `x n OP_SPLIT OP_CAT` -> `x` - for all `x` and for all `n >= 0`
     
 The operator must fail if:
