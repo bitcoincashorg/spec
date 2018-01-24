@@ -105,7 +105,13 @@ Concatenates two operands.
     
 The operator must fail if:
 * `0 <= len(out) <= MAX_SCRIPT_ELEMENT_SIZE` - the operation cannot output elements that violate the constraint on the element size
-  * note that the concatentation of a zero length operand is valid
+    * Draft discussion: OP_CAT is the only op code (?) that can output a vector of greater length than it's inputs.  Previously there
+    has been no other way introduce a larger data element to the stack.  Also note that
+    that op code outputs are not constrained by MAX_SCRIPT_ELEMENT_SIZE. As such a series of OP_CAT OP_DUP OP_CAT OP_DUP etc... creates
+     exponential growth in the output vector length.  Given that a side effect of enabling OP_CAT is to introduce a new mechanism for creating
+     script stack elements it is consistent to apply the same size constrain that is effectively in place for other mechanism.  Consequently
+     any future decision to relax that constraint will consistently apply to OP_CAT outputs as well.
+* note that the concatentation of a zero length operand is valid
 
 Impact of successful execution:
 * stack memory use is constant
@@ -279,15 +285,16 @@ Unit tests:
 
 Still to investigate: same as OP_ZEROES re minimal encoding
 
-### OP_PAD_LEFT
+### OP_PADLEFT
 Pad the left of the byte array with zeroes.
 
-	x n OP_PAD_LEFT → out
+	x n OP_PADLEFT → out
 	
 The operator must fail if:
 1. `!isnum(n)` - `n` is not a number
 2. `n < 0` - `n` is less than zero
-3. `len(x)+n > MAX_SCRIPT_ELEMENT_SIZE` - the length of the result would be too large
+3.
+4. `len(x)+n > MAX_SCRIPT_ELEMENT_SIZE` - the length of the result would be too large
 
 Note that:
 * `n = 0` is valid
