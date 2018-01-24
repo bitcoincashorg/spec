@@ -78,7 +78,7 @@ the resultant behaviour should be defined.
 * TODO overflow issue, e.g. OP_MUL overflowing int32 or int64 or uint256
 * TODO endian issues ???
 * TODO empty byte vector operands
-* TODO clarify ordering of operands, top of stack is 1st operand or last (consider op_cat)
+* TODO clarify ordering of operands, top of stack is last operand (consider op_cat)
 
 ## Definitions
 
