@@ -106,10 +106,10 @@ Concatenates two operands.
 The operator must fail if:
 * `0 <= len(out) <= MAX_SCRIPT_ELEMENT_SIZE` - the operation cannot output elements that violate the constraint on the element size
     * Draft discussion: OP_CAT is the only op code (?) that can output a vector of greater length than it's inputs.  Previously there
-    has been no other way introduce a larger data element to the stack.  Also note that
+    has been no other way introduce a data element  longer than MAX_SCRIPT_ELEMENT_SIZE to the stack.  Also note that
     that op code outputs are not constrained by MAX_SCRIPT_ELEMENT_SIZE. As such a series of OP_CAT OP_DUP OP_CAT OP_DUP etc... creates
      exponential growth in the output vector length.  Given that a side effect of enabling OP_CAT is to introduce a new mechanism for creating
-     script stack elements it is consistent to apply the same size constrain that is effectively in place for other mechanism.  Consequently
+     script stack elements it is consistent to apply the same size constraint that is effectively in place for other mechanisms.  Consequently
      any future decision to relax that constraint will consistently apply to OP_CAT outputs as well.
 * note that the concatentation of a zero length operand is valid
 
