@@ -73,7 +73,7 @@ simulated with varying combinations of `OP_SPLIT`, `OP_SWAP` and `OP_DROP`.
 ## Risks and philosophical approach
 
 In general the approach taken is a minimalist one in order limit edge cases as much as possible.  Where it is possible
-for a primitive op codes used in conjuction with existing op codes to be combined to produce several more complex operations that is
+for a primitive op code used in conjuction with existing op codes to be combined to produce several more complex operations that is
 preferred over a set more complex op codes.  Input conditions that create ambiguous or undefined behaviour should fail fast.  
 
 Each op code should be examined for the following risk conditions and mitigating behaviour defined explcitly:
@@ -83,12 +83,17 @@ the resultant behaviour should be defined.
 * Stack size impact.  Both number of elements and total size of elements. 
 * Overflows.  Defined behaviour in the instance that result of the operation exceeds MAX_SCRIPT_ELEMENT_SIZE
 * Empty byte vector operands.  Whether empty byte vectors should be allowed as a representation of zero.
+* *DRAFT DISCUSSION*: Empty byte vector output.  Note that an operation that outputs an empty byte array has effectively pushed `false` onto the stack.
+  If this is the last operation in a script or if a conditional operator immediately follows the script author must consider this possibility.
+  This is currently the case for many existing op codes however so it is consistent to continue with allowing this behaviour.
 
 ## Definitions
 
 * *Stack memory use* - sum of the size of the elements on the stack - gives an indication of impact on memory use
 * *Operand order* - in keeping with convention where multiple operands are specified the top most stack item is the 
-last operand.  e.g. `x1 x2 OP_CAT` --> x2 is the top stack item and x1 is the next from the top
+last operand.  e.g. `x1 x2 OP_CAT` --> `x2` is the top stack item and `x1` is the next from the top
+* *empty byte array* - throughout this document `OP_0` is used as a convenient representation of an empty byte array.  Whilst it is
+ a push data op code it's effect is to push an empty byte array to the stack.
 * *Rule options* - For the purposes of this draft and for further discussion some rules are presented with options.
 These are denoted by the heading *RULE OPTION* followed by an ordered list.  Generally the options will be a choice
 between a restrictive and a more liberal rule.
@@ -102,14 +107,14 @@ it is possible that they will occur:
 
 These unit tests should be included for every operation:
 1. executing the operation with an input element of length greater than `MAX_SCRIPT_ELEMENT_SIZE` will fail
-2. executing the operation with an incorrect number of operands causes a failure
+2. executing the operation with an insufficient number of operands on the stack causes a failure
 
 
 Operand consumption:
 
 In all cases where not explicitly stated otherwise the operand stack elements are consumed by the operation and replaced with the output.
 
-## Splice perations
+## Splice operations
 
 ### OP_CAT
 Concatenates two operands.
@@ -121,12 +126,13 @@ Examples:
     
 The operator must fail if:
 * `0 <= len(out) <= MAX_SCRIPT_ELEMENT_SIZE` - the operation cannot output elements that violate the constraint on the element size
-    * Draft discussion: OP_CAT is the only op code (?) that can output a byte vector of greater length than it's inputs.  Previously there
-    has been no other way introduce a data element  longer than MAX_SCRIPT_ELEMENT_SIZE to the stack.  Also note that
+    * *Draft discussion*: OP_CAT is the only op code that can output a byte vector of greater length than it's inputs (`OP_MUL` and `OP_2MUL`
+    will also have this property when they are enabled). Previously there
+    has been no other way introduce a data element longer than MAX_SCRIPT_ELEMENT_SIZE to the stack.  Also note that
     that op code outputs are not constrained by MAX_SCRIPT_ELEMENT_SIZE. As such a series of OP_CAT OP_DUP OP_CAT OP_DUP etc... creates
-     exponential growth in the output vector length.  Given that a side effect of enabling OP_CAT is to introduce a new mechanism for creating
-     script stack elements it is consistent to apply the same size constraint that is effectively in place for other mechanisms.  Consequently
-     any future decision to relax that constraint will consistently apply to OP_CAT outputs as well.
+    exponential growth in the output vector length.  Given that a side effect of enabling OP_CAT is to introduce a new mechanism for creating
+    script stack elements it is consistent to apply the same size constraint that is effectively in place for other mechanisms.  Consequently
+    any future decision to relax that constraint will consistently apply to OP_CAT outputs as well.
 * note that the concatentation of a zero length operand is valid
 
 Impact of successful execution:
@@ -173,14 +179,14 @@ Notes:
     2. Restrictive: if `n >= len(x)`, then the operator must fail.
         * note: under this option if `n == len(x) - 1` then `x1 == x` and `x2` is the empty array.
     * Discussion: Arguably allowing n >= len(x) opens the possibility of a script continuing to run under unexpected
-        conditions.  The restrictive option enforces out-of-bounds errors.  Whilst potentially placing the burden
-        on the script author to do an additional bounds check.
+        conditions.  The restrictive option enforces out-of-bounds errors.  Whilst placing the burden
+        on the script author to do a bounds check.
 * `x n OP_SPLIT OP_CAT` -> `x` - for all `x` and for all `n >= 0`
     
 The operator must fail if:
 * `!isnum(n)` - `n` is not a number
 * `n < 0` - `n` is negative
-* RULE OPTION (i): `n > len(x)` - this rule must apply is the restrictive option is accepted.
+* *RULE OPTION (i)*: `n > len(x)` - this rule must apply is the restrictive option is accepted.
 
 Impact of successful execution:
 * stack memory use is constant (slight reduction by `len(n)`)
@@ -201,12 +207,12 @@ to this:
 
 *RULE OPTION*
 
-    1. Restrictive: Enforce equal lengths i.e. where `len(x1) != len(x2)` the operator will fail
-        * This option is a fail early approach that requires the script author to be aware of operand length.  In order to facilitate
+1. Restrictive: Enforce equal lengths i.e. where `len(x1) != len(x2)` the operator will fail
+    * This option is a fail early approach that requires the script author to be aware of operand length.  In order to facilitate
         use cases where lengths differ it is necessary to provide an additional opcode to easily pad an operand to the required length.
         These are specifed under the section "Optional new operations"
-    2. Liberal: Pad the shorter operand on the left with zero bytes such that both are of equal length.
-        * This is the approach taken in the original Satoshi code.
+2. Liberal: Pad the shorter operand on the left with zero bytes such that both are of equal length.
+    * This is the approach taken in the original Satoshi code.
         
 ####END DRAFT DISCUSSION
 
@@ -271,7 +277,7 @@ Unit tests:
     
 ### OP_MOD
 
-Returns the remainder after dividing a by b.
+Returns the remainder after dividing a by b.  The output will be represented using the least number of bytes required. 
 
 	a b OP_MOD → out
 	
@@ -297,7 +303,7 @@ Unit tests:
 In order to facilitate the "operands must be equal length" rule for bitwise logic.  An additional operator is required to give script
 authors a reasonable way of padding operands when required.  Four options are presented.  Only one is required to fullfill the stated purpose.
 
-TODO: assign op code bytes to each operator.
+TODO: assign op code bytes to each accepted operator.
         
 ####END DRAFT DISCUSSION
 
@@ -325,9 +331,9 @@ Impact of successful execution:
 
 Unit tests:
 1. `0 OP_ZEROES -> OP_0` for all values of 0 (positive zero, negative zero, `OP_0`)
-2. `a OP_ZEROES -> failure` where `!isnum(a)`
-3. `a OP_ZEROES -> failure` where `a < 0`
-4. `a OP_ZEROES -> failure` where `a > MAX_SCRIPT_ELEMENT_SIZE`
+2. `n OP_ZEROES -> failure` where `!isnum(n)`
+3. `n OP_ZEROES -> failure` where `n < 0`
+4. `n OP_ZEROES -> failure` where `n > MAX_SCRIPT_ELEMENT_SIZE`
 5. valid samples
  
 Still to investigate: minimal encoding of numbers – could this be used to produce an invalid number which would cause a failure?
@@ -339,7 +345,7 @@ Produce array of repeated bytes.
 	
 Examples: 
 * `0x00 2 OP_REPEAT -> 0x0000`
-* `0x12FE 3 OP_REPEAT -> 0x12FE12FE12FE`
+* `0x11FF 3 OP_REPEAT -> 0x11FF11FF11FF`
 	
 The operator must fail if:
 1. `!isnum(n)` - `n` is not a number
@@ -358,10 +364,11 @@ Unit tests:
 1. `x n OP_REPEAT -> failure` where `!isnum(n)` - fails if `n` not a number
 2. `x -1 OP_REPEAT -> failure` - fails if `n < 0`
 3. `x 0 OP_REPEAT -> OP_0` - repeating any array zero times results in `OP_0`, for all types of zero
-4. `OP_0 n OP_REPEAT → OP_0` – repeating an empty array an arbitrary number of times produces an empty array
-5. `OP_0 (MAX_SCRIPT_ELEMENT_SIZE + 1) OP_REPEAT -> OP_0` - should not fail because output will still be `OP_0`
-5. `OP_1 (MAX_SCRIPT_ELEMENT_SIZE + 1) OP_REPEAT -> failure` - result is too large   
-6. valid samples
+4. `0 n OP_REPEAT → OP_0` – repeating an empty array an arbitrary number of times produces an empty array
+5. `0 (MAX_SCRIPT_ELEMENT_SIZE + 1) OP_REPEAT -> OP_0` - should not fail because output will still be `OP_0`
+5. `1 (MAX_SCRIPT_ELEMENT_SIZE + 1) OP_REPEAT -> failure` - result is too large  
+6. `large n OP_REPEAT -> out` - failure when `len(large) * n > MAX_SCRIPT_ELEMENT_SIZE`   
+7. valid samples
 
 Still to investigate: same as OP_ZEROES re minimal encoding
 
@@ -390,16 +397,16 @@ Unit tests:
 1. `x n OP_PADLEFT -> failure` where `!isnum(n)` - fails if `n` not a number
 2. `x -1 OP_PADLEFT -> failure` - fails if `n < 0`
 3. `x 0 OP_PADLEFT -> x` for all number zero
-4. `OP_0 MAX_SCRIPT_ELEMENT_SIZE+1 OP_PADLEFT -> failure` - too large
-5. `OP_0 MAX_SCRIPT_ELEMENT_SIZE OP_PADLEFT -> out` - `out` is an array of `MAX_SCRIPT_ELEMENT_SIZE` zeros
+4. `0 (MAX_SCRIPT_ELEMENT_SIZE + 1) OP_PADLEFT -> failure` - too large
+5. `0 MAX_SCRIPT_ELEMENT_SIZE OP_PADLEFT -> out` - `out` is an array of `MAX_SCRIPT_ELEMENT_SIZE` zeros
 6. `large 1 OP_PADLEFT -> failure` where `len(large) = MAX_SCRIPT_ELEMENT_SIZE`
 7. valid samples
 
 ### OP_MATCHLEN
 
-Match the length of `a` and `b` by padding the the shorter of the two to the left with zeroes.
+Match the length of `x1` and `x2` by padding the the shorter of the two to the left with zeroes.
 
-    `a b OP_MATCHLEN` -> out
+    `x1 x2 OP_MATCHLEN` -> out
 
 Examples:
 * `0x1122 0xAA OP_MATCHLEN -> 0x1122 0x00AA`
@@ -411,24 +418,24 @@ Operand stack elements are not consumed by this operation.  However the shortest
 equivilent.
 
 The operator must fail if:
-1. `len(a) or len(b) > MAX_SCRIPT_ELEMENT_SIZE`
+1. `len(x1) or len(x2) > MAX_SCRIPT_ELEMENT_SIZE`
 
 Notes:
-* Where `len(a) == 0` `a` will be a replaced with a zero byte array of size `len(b)` 
-* Where `len(b) == 0` `b` will be a replaced with a zero byte array of size `len(a)`
-* Where `len(a) == len(b)` this is not a failure condition but is functionally equivilent to `OP_NOP`
+* Where `len(x1) == 0` `x1` will be a replaced with a zero byte array of size `len(x2)` 
+* Where `len(x2) == 0` `x2` will be a replaced with a zero byte array of size `len(x1)`
+* Where `len(x1) == len(x2)` this is not a failure condition but is effectively a `NOOP`
 
 Impact of successful execution:
-* stack memory use increased by `abs(len(a) - len(b))`, maximum `MAX_SCRIPT_ELEMENT_SIZE`
+* stack memory use increased by `abs(len(x1) - len(x2))`, maximum `MAX_SCRIPT_ELEMENT_SIZE`
 * number of elements on stack is constant.
 
 Unit tests:
-1. `a b OP_MATCHLEN -> failure` where `len(a) or len(b) = MAX_SCRIPT_ELEMENT_SIZE`
-1. `OP_0 b OP_MATCHLEN -> out` replaces OP_0 with zero byte array of `len(b)`
-1. `a OP_0 OP_MATCHLEN -> out` replaces OP_0 with zero byte array of `len(a)`
+1. `x1 x2 OP_MATCHLEN -> failure` where `len(x1) or len(x2) = MAX_SCRIPT_ELEMENT_SIZE`
+1. `OP_0 x2 OP_MATCHLEN -> out` replaces OP_0 with zero byte array of `len(x2)`
+1. `x1 OP_0 OP_MATCHLEN -> out` replaces OP_0 with zero byte array of `len(x1)`
 1. `OP_0 OP_0 OP_MATCHLEN -> out` top two elements of stack remain unchanged
-1. `long_a short_b OP_MATCHLEN -> out` `short_b` is padded to `len(long_a)`
-1. `short_a long_b OP_MATCHLEN -> out` `short_a` is padded to `len(long_b)`
+1. `long_x1 short_x2 OP_MATCHLEN -> out` `short_x2` is padded to `len(long_x1)`
+1. `short_x1 long_x2 OP_MATCHLEN -> out` `short_x1` is padded to `len(long_x2)`
 
 7. valid samples
 
