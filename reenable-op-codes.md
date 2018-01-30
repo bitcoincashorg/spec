@@ -73,8 +73,8 @@ simulated with varying combinations of `OP_SPLIT`, `OP_SWAP` and `OP_DROP`.
 ## Risks and philosophical approach
 
 In general the approach taken is a minimalist one in order limit edge cases as much as possible.  Where it is possible
-for a single more primitive op code to be combined with other op codes to achieve a functionality that is preferred over
-a more complex op code.  Input conditions that create ambiguous or undefined behaviour should fail fast.  
+for a primitive op codes used in conjuction with existing op codes to be combined to produce several more complex operations that is
+preferred over a set more complex op codes.  Input conditions that create ambiguous or undefined behaviour should fail fast.  
 
 Each op code should be examined for the following risk conditions and mitigating behaviour defined explcitly:
 * Operand byte length mismatch.  Where it would be normally expected that two operands would be of matching byte lengths
@@ -116,6 +116,9 @@ Concatenates two operands.
 
     x1 x2 OP_CAT → out
     
+Examples:
+* `Ox11 0x2233 OP_CAT -> 0x112233`
+    
 The operator must fail if:
 * `0 <= len(out) <= MAX_SCRIPT_ELEMENT_SIZE` - the operation cannot output elements that violate the constraint on the element size
     * Draft discussion: OP_CAT is the only op code (?) that can output a byte vector of greater length than it's inputs.  Previously there
@@ -155,16 +158,22 @@ Split the operand at the given position.  This operation is the exact inverse of
 
     x n OP_SPLIT -> x1 x2
 
+Examples:
+* `0x001122 0 OP_SPLIT -> OP_0 0x001122`
+* `0x001122 1 OP_SPLIT -> 0x00 0x1122`
+* `0x001122 2 OP_SPLIT -> 0x0011 0x22`
+* `0x001122 3 OP_SPLIT -> 0x00112233 OP_0`
+
 Notes:
 * `x` is split at position `n`, where `n` is the number of bytes from the beginning
 * `x1` will be the first `n` bytes of `x` and `x2` will be the remaining bytes 
 * if `n == 0`, then `x1` is the empty array and `x2 == x`
 * *RULE OPTIONS*
     1. Liberal: if `n >= len(x)`, then `x1 == x` and `x2` is the empty array. OR
-    2. Restrictive: if `n > len(x)`, then the operator must fail.
-        * note: under this option if `n > len(x)` then `x1 == x` and `x2` is the empty array.
-    * Discussion: Arguably allowing n > len(x) opens the possibility of a script continuing to run under unexpected
-        conditions.  The restrictive option eliminates out-of-bounds errors.  Whilst potentially placing the burden
+    2. Restrictive: if `n >= len(x)`, then the operator must fail.
+        * note: under this option if `n == len(x) - 1` then `x1 == x` and `x2` is the empty array.
+    * Discussion: Arguably allowing n >= len(x) opens the possibility of a script continuing to run under unexpected
+        conditions.  The restrictive option enforces out-of-bounds errors.  Whilst potentially placing the burden
         on the script author to do an additional bounds check.
 * `x n OP_SPLIT OP_CAT` -> `x` - for all `x` and for all `n >= 0`
     
@@ -297,6 +306,10 @@ TODO: assign op code bytes to each operator.
 Produces byte vector of length `n` containing all zero bytes
 
 	n OP_ZEROES → out
+	
+Examples:
+* `2 OP_ZEROES -> 0x0000`
+* `OP_0 OP_ZEROES -> OP_0`
 	
 The operator must fail if:
 1. `!isnum(n)` - `n` is not a number
