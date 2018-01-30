@@ -61,8 +61,8 @@ Arithmetic: `OP_MOD`
 
 New: optionally*** , either of: 
 * `<n> OP_ZEROS` - returns a byte vector of length `n` containing all zeros
-* `<string> <n> OP_REPEAT` - returns a byte vector of <string> repeated `n` times
-* `<string> <n> OP_PADLEFT` - pads the left of <string> until it is of length `n`
+* `<string> <n> OP_REPEAT` - returns a byte vector of `<string>` repeated `n` times
+* `<string> <n> OP_PADLEFT` - pads the left of `<string>` until it is of length `n`
 * `<string> <string> OP_MATCHLEN` - pads the left of the shorter string to match the length of the longer
 
 ** A new operation, `OP_SPLIT`, is proposed as a replacement for `OP_SUBSTR`, `OP_LEFT`and `OP_RIGHT`. All three operations can be
