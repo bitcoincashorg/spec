@@ -2,7 +2,7 @@
 
 Version 0.1, 2018-01-19 - DRAFT FOR DISCUSSION
 
-##Draft discussion notes
+## Draft discussion notes
 
 For the purposes of discussion of this draft additional notes are contained throughout with the heading *DRAFT DISCCUSION*.  These are
 intended to be removed from the finalalized version of this document.
@@ -152,13 +152,13 @@ Unit tests:
 
 ### OP_SPLIT
 
-####DRAFT DISCUSSION
+#### DRAFT DISCUSSION
 
 It will be noted that the new operation, `OP_SPLIT`, is proposed as a replacement for `OP_SUBSTR`, `OP_LEFT`and `OP_RIGHT`. All three operations can be
 simulated with varying combinations of `OP_SPLIT`, `OP_SWAP` and `OP_DROP`.  This is in keeping with the minimalist philosophy where a single
 primitive can be used to simulate multiple more complex operations.
 
-####END DRAFT DISCUSSION
+#### END DRAFT DISCUSSION
 
 Split the operand at the given position.  This operation is the exact inverse of OP_CAT
 
@@ -200,7 +200,7 @@ Unit tests:
 
 ## Bitwise logic
 
-####DRAFT DISCUSSION
+#### DRAFT DISCUSSION
 
 For all bitwise operations that take two operands the case must be considered where `len(x1) != len(x2)`.  There are two proposed approaches
 to this:
@@ -214,7 +214,7 @@ to this:
 2. Liberal: Pad the shorter operand on the left with zero bytes such that both are of equal length.
     * This is the approach taken in the original Satoshi code.
         
-####END DRAFT DISCUSSION
+#### END DRAFT DISCUSSION
 
 
 ### OP_AND
@@ -298,14 +298,14 @@ Unit tests:
 
 ## Optional new operations
 
-####DRAFT DISCUSSION
+#### DRAFT DISCUSSION
 
 In order to facilitate the "operands must be equal length" rule for bitwise logic.  An additional operator is required to give script
 authors a reasonable way of padding operands when required.  Four options are presented.  Only one is required to fullfill the stated purpose.
 
 TODO: assign op code bytes to each accepted operator.
         
-####END DRAFT DISCUSSION
+#### END DRAFT DISCUSSION
 
 
 ### OP_ZEROES
