@@ -181,6 +181,7 @@ Notes:
     * Discussion: Arguably allowing n >= len(x) opens the possibility of a script continuing to run under unexpected
         conditions.  The restrictive option enforces out-of-bounds errors.  Whilst placing the burden
         on the script author to do a bounds check.
+    * TODO Triple check all of the above for off by one errors.
 * `x n OP_SPLIT OP_CAT` -> `x` - for all `x` and for all `n >= 0`
     
 The operator must fail if:
