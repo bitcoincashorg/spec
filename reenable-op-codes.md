@@ -284,7 +284,7 @@ Returns the remainder after dividing a by b.  The output will be represented usi
 	
 The operator must fail if:
 1. `!isnum(a) || !isnum(b)` - either operand is not a valid number
-1. `a < 0` - `a` is a negative number
+1. `a < 0` - `a` is a negative number including negative zero
 1. `b <= 0` - `b` is a negative number or equal to any type of zero
 
 Impact of successful execution:
