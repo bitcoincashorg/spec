@@ -194,7 +194,8 @@ Impact of successful execution:
 * number of elements on stack is constant
 
 Unit tests:
-* `OP_0 n OP_SPLIT -> OP_0 OP_0`, for all positive numbers n - execution of OP_SPLIT on empty array results in two empty arrays
+* `OP_0 n OP_SPLIT -> OP_0 OP_0`, for all positive numbers n - execution of OP_SPLIT on empty array results in two empty arrays.
+note: under restrictive rule this should fail where `n != 0`.
 * `x 0 OP_SPLIT -> OP_0 x`
 * `x len(x) OP_SPLIT -> x OP_0`
 * *RULE OPTION (i)*: `x len(x)+1 OP_SPLIT -> FAIL`
