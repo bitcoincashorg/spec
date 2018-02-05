@@ -334,7 +334,6 @@ Unit tests:
 4. `n OP_ZEROES -> failure` where `n > MAX_SCRIPT_ELEMENT_SIZE`
 5. valid samples
  
-Still to investigate: minimal encoding of numbers – could this be used to produce an invalid number which would cause a failure?
 
 ### OP_REPEAT
 Produce array of repeated bytes.
@@ -368,7 +367,6 @@ Unit tests:
 6. `large n OP_REPEAT -> out` - failure when `len(large) * n > MAX_SCRIPT_ELEMENT_SIZE`   
 7. valid samples
 
-Still to investigate: same as OP_ZEROES re minimal encoding
 
 ### OP_PADLEFT
 Pad the left of the byte array with zeroes until `len(out) = n`
