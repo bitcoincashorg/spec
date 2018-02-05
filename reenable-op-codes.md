@@ -202,22 +202,8 @@ note: under restrictive rule this should fail where `n != 0`.
 
 ## Bitwise logic
 
-#### DRAFT DISCUSSION
-
-For all bitwise operations that take two operands the case must be considered where `len(x1) != len(x2)`.  There are two proposed approaches
-to this:
-
-*RULE OPTION*
-
-1. Restrictive: Enforce equal lengths i.e. where `len(x1) != len(x2)` the operator will fail
-    * This option is a fail early approach that requires the script author to be aware of operand length.  In order to facilitate
-        use cases where lengths differ it is necessary to provide an additional opcode to easily pad an operand to the required length.
-        These are specifed under the section "Optional new operations"
-2. Liberal: Pad the shorter operand on the left with zero bytes such that both are of equal length.
-    * This is the approach taken in the original Satoshi code.
-        
-#### END DRAFT DISCUSSION
-
+The bitwise logic operators expect binary array operands. The operands must be the same length. `OP_MATCHLEN` or 
+`OP_NUM2BIN` may be useful in meeting these requirements.
 
 ### OP_AND
 
@@ -229,7 +215,7 @@ Notes:
 * where `len(x1) == 0 == len(x2)` the output will be an empty array.
 
 The operator must fail if:
-1. *RULE OPTION (1)*: `len(x1) != len(x2)` - the length, in bytes, of the two values is not equal
+1. `len(x1) != len(x2)` - the length, in bytes, of the two values is not equal
 
 Impact of successful execution:
 * stack memory use reduced by `len(x1)`
@@ -237,10 +223,8 @@ Impact of successful execution:
 
 Unit tests:
 
-1. *RULE OPTION (1)*: `x1 x2 OP_AND -> failure`, where `len(x1) != len(x2)` - operation fails when length of operands not equal
+1. `x1 x2 OP_AND -> failure`, where `len(x1) != len(x2)` - operation fails when length of operands not equal
 2. `x1 x2 OP_AND -> x1 & x2` - check valid results
-
-TODO: minimal encoding of numbers – would this cause numbers (byte arrays where len <= 4) to be automatically left truncated? Is it possible to AND the values 0x0005 and 0x0100?
 
 ### OP_OR
 
@@ -249,14 +233,14 @@ Boolean *or* between each bit in the operands.
 	x1 x2 OP_OR → out
 	
 The operator must fail if:
-1. *RULE OPTION (1)*:`len(x1) != len(x2)` - the length, in bytes, of the two values is not equal
+1. `len(x1) != len(x2)` - the length, in bytes, of the two values is not equal
 
 Impact of successful execution:
-* stack memory use reduced by `min(len(x1), len(x2))`
+* stack memory use reduced by `len(x1)`
 * number of elements on stack is reduced by one
 
 Unit tests:
-1. *RULE OPTION (1)*:`x1 x2 OP_OR -> failure`, where `len(x1) != len(x2)` - operation fails when length of operands not equal
+1. `x1 x2 OP_OR -> failure`, where `len(x1) != len(x2)` - operation fails when length of operands not equal
 2. `x1 x2 OP_OR -> x1 | x2` - check valid results
 
 ### OP_XOR
@@ -265,14 +249,14 @@ Boolean *xor* between each bit in the operands.
 	x1 x2 OP_XOR → out
 	
 The operator must fail if:
-1. *RULE OPTION (1)*: `len(x1) != len(x2)` - the length, in bytes, of the two operands is not equal
+1. `len(x1) != len(x2)` - the length, in bytes, of the two operands is not equal
 
 Impact of successful execution:
 * stack memory use reduced by `len(x1)`
 * number of elements on stack is reduced by one
 
 Unit tests:
-1. *RULE OPTION (1)*: `x1 x2 OP_XOR -> failure`, where `len(x1) != len(x2)` - operation fails when length of operands not equal
+1. `x1 x2 OP_XOR -> failure`, where `len(x1) != len(x2)` - operation fails when length of operands not equal
 2. `x1 x2 OP_XOR -> x1 xor x2` - check valid results
     
 ## Arithmetic
@@ -438,8 +422,41 @@ Unit tests:
 1. `OP_0 OP_0 OP_MATCHLEN -> out` top two elements of stack remain unchanged
 1. `long_x1 short_x2 OP_MATCHLEN -> out` `short_x2` is padded to `len(long_x1)`
 1. `short_x1 long_x2 OP_MATCHLEN -> out` `short_x1` is padded to `len(long_x2)`
-
 7. valid samples
+
+### OP_BIN2NUM
+
+Convert the binary array into a valid numeric value, including minimal encoding.
+
+    `x1 OP_BIN2NUM -> n`
+
+See also `OP_NUM2BIN`.
+    
+Examples:
+* `0x0000000002 OP_BIN2NUM -> 0x02`
+* `0x800005 OP_BIN2NUM -> 0x85`
+
+The operator must fail if:
+1. the numeric value is out of the range of acceptable numeric values (currently size is limited to 4 bytes)
+
+     
+### OP_NUM2BIN
+
+Convert the numeric value into a binary array of a certain size, taking account of the sign bit.
+
+    `n m OP_NUM2BIN -> x`
+
+See also `OP_BIN2NUM`.
+
+Examples:
+* `0x02 4 OP_NUM2BIN -> 0x00000002`
+* `0x85 4 OP_NUM2BIN -> 0x80000005`
+
+The operator must fail if:
+1. `n` or `m` are not valid numeric values
+1. `m < len(n)`. `n` is a valid numeric value, therefore it is already in minimal representation 
+2. `m > SCRIPT_MAX_ELEMENT_SIZE` - the result would be too large
+
 
 ## Reference implementation
 
