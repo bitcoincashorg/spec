@@ -83,7 +83,7 @@ the resultant behaviour should be defined.
 * Stack size impact.  Both number of elements and total size of elements. 
 * Overflows.  Defined behaviour in the instance that result of the operation exceeds MAX_SCRIPT_ELEMENT_SIZE
 * Empty byte vector operands.  Whether empty byte vectors should be allowed as a representation of zero.
-* *DRAFT DISCUSSION*: Empty byte vector output.  Note that an operation that outputs an empty byte array has effectively pushed `false` onto the stack.
+* Empty byte vector output.  Note that an operation that outputs an empty byte array has effectively pushed `false` onto the stack.
   If this is the last operation in a script or if a conditional operator immediately follows the script author must consider this possibility.
   This is currently the case for many existing op codes however so it is consistent to continue with allowing this behaviour.
 
@@ -94,9 +94,6 @@ the resultant behaviour should be defined.
 last operand.  e.g. `x1 x2 OP_CAT` --> `x2` is the top stack item and `x1` is the next from the top
 * *empty byte array* - throughout this document `OP_0` is used as a convenient representation of an empty byte array.  Whilst it is
  a push data op code it's effect is to push an empty byte array to the stack.
-* *Rule options* - For the purposes of this draft and for further discussion some rules are presented with options.
-These are denoted by the heading *RULE OPTION* followed by an ordered list.  Generally the options will be a choice
-between a restrictive and a more liberal rule.
 
 ## Specification
 
@@ -126,14 +123,8 @@ Examples:
     
 The operator must fail if:
 * `0 <= len(out) <= MAX_SCRIPT_ELEMENT_SIZE` - the operation cannot output elements that violate the constraint on the element size
-    * *Draft discussion*: OP_CAT is the only op code that can output a byte vector of greater length than it's inputs (`OP_MUL` and `OP_2MUL`
-    will also have this property when they are enabled). Previously there
-    has been no other way introduce a data element longer than MAX_SCRIPT_ELEMENT_SIZE to the stack.  Also note that
-    that op code outputs are not constrained by MAX_SCRIPT_ELEMENT_SIZE. As such a series of OP_CAT OP_DUP OP_CAT OP_DUP etc... creates
-    exponential growth in the output vector length.  Given that a side effect of enabling OP_CAT is to introduce a new mechanism for creating
-    script stack elements it is consistent to apply the same size constraint that is effectively in place for other mechanisms.  Consequently
-    any future decision to relax that constraint will consistently apply to OP_CAT outputs as well.
-* note that the concatentation of a zero length operand is valid
+
+Note that the concatentation of a zero length operand is valid
 
 Impact of successful execution:
 * stack memory use is constant
@@ -152,14 +143,6 @@ Unit tests:
 
 ### OP_SPLIT
 
-#### DRAFT DISCUSSION
-
-It will be noted that the new operation, `OP_SPLIT`, is proposed as a replacement for `OP_SUBSTR`, `OP_LEFT`and `OP_RIGHT`. All three operations can be
-simulated with varying combinations of `OP_SPLIT`, `OP_SWAP` and `OP_DROP`.  This is in keeping with the minimalist philosophy where a single
-primitive can be used to simulate multiple more complex operations.
-
-#### END DRAFT DISCUSSION
-
 Split the operand at the given position.  This operation is the exact inverse of OP_CAT
 
     x n OP_SPLIT -> x1 x2
@@ -171,53 +154,35 @@ Examples:
 * `0x001122 3 OP_SPLIT -> 0x00112233 OP_0`
 
 Notes:
+* this operator has been introduced as a replacement for the previous `OP_SUBSTR`, `OP_LEFT`and `OP_RIGHT`. All three operators can be
+simulated with varying combinations of `OP_SPLIT`, `OP_SWAP` and `OP_DROP`.  This is in keeping with the minimalist philosophy where a single
+primitive can be used to simulate multiple more complex operations.
 * `x` is split at position `n`, where `n` is the number of bytes from the beginning
 * `x1` will be the first `n` bytes of `x` and `x2` will be the remaining bytes 
 * if `n == 0`, then `x1` is the empty array and `x2 == x`
-* *RULE OPTIONS*
-    1. Liberal: if `n >= len(x)`, then `x1 == x` and `x2` is the empty array. OR
-    2. Restrictive: if `n >= len(x)`, then the operator must fail.
-        * note: under this option if `n == len(x) - 1` then `x1 == x` and `x2` is the empty array.
-    * Discussion: Arguably allowing n >= len(x) opens the possibility of a script continuing to run under unexpected
-        conditions.  The restrictive option enforces out-of-bounds errors.  Whilst placing the burden
-        on the script author to do a bounds check.
-    * TODO Triple check all of the above for off by one errors.
-* `x n OP_SPLIT OP_CAT` -> `x` - for all `x` and for all `n >= 0`
+* if `n > len(x)`, then the operator must fail.
+* if `n == len(x)` then `x1 == x` and `x2` is the empty array.
+* `x n OP_SPLIT OP_CAT -> x` - for all `x` and for all `0 <= n <= len(x)`
     
 The operator must fail if:
 * `!isnum(n)` - `n` is not a number
 * `n < 0` - `n` is negative
-* *RULE OPTION (i)*: `n > len(x)` - this rule must apply is the restrictive option is accepted.
+* `n >= len(x)` - `n` is too high
 
 Impact of successful execution:
 * stack memory use is constant (slight reduction by `len(n)`)
 * number of elements on stack is constant
 
 Unit tests:
-* `OP_0 n OP_SPLIT -> OP_0 OP_0`, for all positive numbers n - execution of OP_SPLIT on empty array results in two empty arrays.
-note: under restrictive rule this should fail where `n != 0`.
+* `OP_0 0 OP_SPLIT -> OP_0 OP_0` - execution of OP_SPLIT on empty array results in two empty arrays.
 * `x 0 OP_SPLIT -> OP_0 x`
 * `x len(x) OP_SPLIT -> x OP_0`
-* *RULE OPTION (i)*: `x len(x)+1 OP_SPLIT -> FAIL`
+* `x len(x)+1 OP_SPLIT -> FAIL`
 
 ## Bitwise logic
 
-#### DRAFT DISCUSSION
-
-For all bitwise operations that take two operands the case must be considered where `len(x1) != len(x2)`.  There are two proposed approaches
-to this:
-
-*RULE OPTION*
-
-1. Restrictive: Enforce equal lengths i.e. where `len(x1) != len(x2)` the operator will fail
-    * This option is a fail early approach that requires the script author to be aware of operand length.  In order to facilitate
-        use cases where lengths differ it is necessary to provide an additional opcode to easily pad an operand to the required length.
-        These are specifed under the section "Optional new operations"
-2. Liberal: Pad the shorter operand on the left with zero bytes such that both are of equal length.
-    * This is the approach taken in the original Satoshi code.
-        
-#### END DRAFT DISCUSSION
-
+The bitwise logic operators expect binary array operands. The operands must be the same length. `OP_MATCHLEN` or 
+`OP_NUM2BIN` may be useful in meeting these requirements.
 
 ### OP_AND
 
@@ -229,7 +194,7 @@ Notes:
 * where `len(x1) == 0 == len(x2)` the output will be an empty array.
 
 The operator must fail if:
-1. *RULE OPTION (1)*: `len(x1) != len(x2)` - the length, in bytes, of the two values is not equal
+1. `len(x1) != len(x2)` - the length, in bytes, of the two values is not equal
 
 Impact of successful execution:
 * stack memory use reduced by `len(x1)`
@@ -237,10 +202,8 @@ Impact of successful execution:
 
 Unit tests:
 
-1. *RULE OPTION (1)*: `x1 x2 OP_AND -> failure`, where `len(x1) != len(x2)` - operation fails when length of operands not equal
+1. `x1 x2 OP_AND -> failure`, where `len(x1) != len(x2)` - operation fails when length of operands not equal
 2. `x1 x2 OP_AND -> x1 & x2` - check valid results
-
-TODO: minimal encoding of numbers – would this cause numbers (byte arrays where len <= 4) to be automatically left truncated? Is it possible to AND the values 0x0005 and 0x0100?
 
 ### OP_OR
 
@@ -249,14 +212,14 @@ Boolean *or* between each bit in the operands.
 	x1 x2 OP_OR → out
 	
 The operator must fail if:
-1. *RULE OPTION (1)*:`len(x1) != len(x2)` - the length, in bytes, of the two values is not equal
+1. `len(x1) != len(x2)` - the length, in bytes, of the two values is not equal
 
 Impact of successful execution:
-* stack memory use reduced by `min(len(x1), len(x2))`
+* stack memory use reduced by `len(x1)`
 * number of elements on stack is reduced by one
 
 Unit tests:
-1. *RULE OPTION (1)*:`x1 x2 OP_OR -> failure`, where `len(x1) != len(x2)` - operation fails when length of operands not equal
+1. `x1 x2 OP_OR -> failure`, where `len(x1) != len(x2)` - operation fails when length of operands not equal
 2. `x1 x2 OP_OR -> x1 | x2` - check valid results
 
 ### OP_XOR
@@ -265,14 +228,14 @@ Boolean *xor* between each bit in the operands.
 	x1 x2 OP_XOR → out
 	
 The operator must fail if:
-1. *RULE OPTION (1)*: `len(x1) != len(x2)` - the length, in bytes, of the two operands is not equal
+1. `len(x1) != len(x2)` - the length, in bytes, of the two operands is not equal
 
 Impact of successful execution:
 * stack memory use reduced by `len(x1)`
 * number of elements on stack is reduced by one
 
 Unit tests:
-1. *RULE OPTION (1)*: `x1 x2 OP_XOR -> failure`, where `len(x1) != len(x2)` - operation fails when length of operands not equal
+1. `x1 x2 OP_XOR -> failure`, where `len(x1) != len(x2)` - operation fails when length of operands not equal
 2. `x1 x2 OP_XOR -> x1 xor x2` - check valid results
     
 ## Arithmetic
@@ -297,6 +260,39 @@ Unit tests:
 2. `a 0 OP_MOD -> failure` - division by positive zero (all sizes), negative zero (all sizes), `OP_0` 
 3. `a b OP_MOD -> failure` where `a < 0`, `b < 0` - both operands must be positive
 4. check valid results for operands of different lengths `1..4`
+
+### OP_BIN2NUM
+
+Convert the binary array into a valid numeric value, including minimal encoding.
+
+    `x1 OP_BIN2NUM -> n`
+
+See also `OP_NUM2BIN`.
+    
+Examples:
+* `0x0000000002 OP_BIN2NUM -> 0x02`
+* `0x800005 OP_BIN2NUM -> 0x85`
+
+The operator must fail if:
+1. the numeric value is out of the range of acceptable numeric values (currently size is limited to 4 bytes)
+
+     
+### OP_NUM2BIN
+
+Convert the numeric value into a binary array of a certain size, taking account of the sign bit.
+
+    `n m OP_NUM2BIN -> x`
+
+See also `OP_BIN2NUM`.
+
+Examples:
+* `0x02 4 OP_NUM2BIN -> 0x00000002`
+* `0x85 4 OP_NUM2BIN -> 0x80000005`
+
+The operator must fail if:
+1. `n` or `m` are not valid numeric values
+1. `m < len(n)`. `n` is a valid numeric value, therefore it is already in minimal representation 
+2. `m > MAX_SCRIPT_ELEMENT_SIZE` - the result would be too large
 
 ## Optional new operations
 
@@ -338,7 +334,6 @@ Unit tests:
 4. `n OP_ZEROES -> failure` where `n > MAX_SCRIPT_ELEMENT_SIZE`
 5. valid samples
  
-Still to investigate: minimal encoding of numbers – could this be used to produce an invalid number which would cause a failure?
 
 ### OP_REPEAT
 Produce array of repeated bytes.
@@ -372,7 +367,6 @@ Unit tests:
 6. `large n OP_REPEAT -> out` - failure when `len(large) * n > MAX_SCRIPT_ELEMENT_SIZE`   
 7. valid samples
 
-Still to investigate: same as OP_ZEROES re minimal encoding
 
 ### OP_PADLEFT
 Pad the left of the byte array with zeroes until `len(out) = n`
@@ -438,7 +432,6 @@ Unit tests:
 1. `OP_0 OP_0 OP_MATCHLEN -> out` top two elements of stack remain unchanged
 1. `long_x1 short_x2 OP_MATCHLEN -> out` `short_x2` is padded to `len(long_x1)`
 1. `short_x1 long_x2 OP_MATCHLEN -> out` `short_x1` is padded to `len(long_x2)`
-
 7. valid samples
 
 ## Reference implementation
