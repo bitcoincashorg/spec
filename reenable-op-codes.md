@@ -91,8 +91,8 @@ whilst preserving the sign bit.
 
 **Endian notation**
 
-For human readability where hex strings are presented in this document big endian notation is used.  e.g. for `0x1122` the most
-significant byte is 0x11
+For human readability where hex strings are presented in this document big endian notation is used.  That is: 0x0100 represents decimal 256
+not decimal 1
 
 
 ## Risks and philosophical approach
