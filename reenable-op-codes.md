@@ -50,6 +50,8 @@ The following list of disabled op codes is broken down by category.
 |OP_RSHIFT  |152    |0x99|a b           |out     |shifts *a* right by *b* bits, preserving sign                     |
 
 
+### Proposed op codes to reenable
+
 It is proposed to reintroduce these op codes (or equivalent functionality) in a staged process.  The first stage being
 to enable a limited subset in the May hard fork. 
 
@@ -57,24 +59,47 @@ Splice operations: `OP_CAT`, `OP_SPLIT`**
 
 Bitwise logic: `OP_AND`, `OP_OR`, `OP_XOR`
 
-Arithmetic: `OP_MOD`
+Arithmetic: `OP_DIV`, `OP_MOD`
 
-New: optionally*** , either of: 
-* `<n> OP_ZEROS` - returns a byte vector of length `n` containing all zeros
-* `<string> <n> OP_REPEAT` - returns a byte vector of `<string>` repeated `n` times
-* `<string> <n> OP_PADLEFT` - pads the left of `<string>` until it is of length `n`
-* `<string> <string> OP_MATCHLEN` - pads the left of the shorter string to match the length of the longer
+New: 
+* `x OP_BIN2NUM -> n` - convert a binary array `x` into a valid (canonical) numeric element
+* `n m OP_NUM2BIN -> out` - convert a numeric value `n` into a byte array of length `m`
 
 ** A new operation, `OP_SPLIT`, is proposed as a replacement for `OP_SUBSTR`, `OP_LEFT`and `OP_RIGHT`. All three operations can be
 simulated with varying combinations of `OP_SPLIT`, `OP_SWAP` and `OP_DROP`.
 
 *** futher discussion of the purpose of these new operation under bitwise operations.
 
+## <a name="data-types"></a>Script data types
+
+It should be noted that in script operation data value on the stack are interpreted as either binary strings (i.e. an array of bytes) 
+or numbers.  **All data on the stack is interpreted as an array of bytes unless specifically stated as being interpreted as numeric.**
+
+Numeric type have specific limitations:
+1. The used encoding is little endian with an explicit sign bit (the highest bit of the last byte).
+2. They cannot exceed 4 bytes in length.
+3. They must be encoded using the shortest possible byte length (no zero padding)
+    3. There is one exception to rule 3: if there is more than one byte and the most significant bit of the 
+        second-most-significant-byte is set it would conflict with the sign bit. In this case a single 0x00 or 0x80 byte is allowed
+        to the left.
+4. Negative zero is not allowed.
+    
+The newly proposed opcode `x OP_BIN2NUM -> out` can be used convert a binary array into a canonical number where required.
+
+The newly proposed opcode `x n OP_NUM2BIN` can be used to convert a number into a zero padded binary array of length `n` 
+whilst preserving the sign bit.
+
+**Endian notation**
+
+For human readability where hex strings are presented in this document big endian notation is used.  e.g. for `0x1122` the most
+significant byte is 0x11
+
+
 ## Risks and philosophical approach
 
 In general the approach taken is a minimalist one in order limit edge cases as much as possible.  Where it is possible
 for a primitive op code used in conjuction with existing op codes to be combined to produce several more complex operations that is
-preferred over a set more complex op codes.  Input conditions that create ambiguous or undefined behaviour should fail fast.  
+preferred over a set of more complex op codes.  Input conditions that create ambiguous or undefined behaviour should fail fast.  
 
 Each op code should be examined for the following risk conditions and mitigating behaviour defined explcitly:
 * Operand byte length mismatch.  Where it would be normally expected that two operands would be of matching byte lengths
@@ -114,10 +139,14 @@ In all cases where not explicitly stated otherwise the operand stack elements ar
 ## Splice operations
 
 ### OP_CAT
+
+    Opcode (decimal): 126
+    Opcode (hex): 0x7e
+
 Concatenates two operands.
 
     x1 x2 OP_CAT → out
-    
+        
 Examples:
 * `Ox11 0x2233 OP_CAT -> 0x112233`
     
@@ -143,9 +172,17 @@ Unit tests:
 
 ### OP_SPLIT
 
+*`OP_SPLIT` replaces `OP_SUBSTR` and uses it's opcode.*
+
+    Opcode (decimal): 127
+    Opcode (hex): 0x7f
+
+
 Split the operand at the given position.  This operation is the exact inverse of OP_CAT
 
     x n OP_SPLIT -> x1 x2
+
+    where n is interpreted as a number
 
 Examples:
 * `0x001122 0 OP_SPLIT -> OP_0 0x001122`
@@ -181,10 +218,16 @@ Unit tests:
 
 ## Bitwise logic
 
-The bitwise logic operators expect binary array operands. The operands must be the same length. `OP_MATCHLEN` or 
-`OP_NUM2BIN` may be useful in meeting these requirements.
+The bitwise logic operators expect 'array of bytes' operands. The operands must be the same length. 
+* In the case of 'array of bytes' operands `OP_CAT` can be used to pad a shorter byte array to an appropriate length.
+* In the case of 'array of bytes' operands there the length of operands is not known until runtime an array of 0x00 bytes 
+(for use with `OP_CAT`) can be produced using `OP_0 n OP_NUM2BIN`
+* In the case of numeric operands `x n OP_NUM2BIN` can be used to pad a number to length `n` whilst preserving the sign bit.
 
 ### OP_AND
+
+    Opcode (decimal): 132
+    Opcode (hex): 0x84
 
 Boolean *and* between each bit in the operands.
 
@@ -207,6 +250,9 @@ Unit tests:
 
 ### OP_OR
 
+    Opcode (decimal): 133
+    Opcode (hex): 0x85
+
 Boolean *or* between each bit in the operands.
 
 	x1 x2 OP_OR → out
@@ -223,6 +269,10 @@ Unit tests:
 2. `x1 x2 OP_OR -> x1 | x2` - check valid results
 
 ### OP_XOR
+
+    Opcode (decimal): 134
+    Opcode (hex): 0x86
+
 Boolean *xor* between each bit in the operands.
 
 	x1 x2 OP_XOR → out
@@ -239,17 +289,63 @@ Unit tests:
 2. `x1 x2 OP_XOR -> x1 xor x2` - check valid results
     
 ## Arithmetic
+
+#### Note about canonical form and floor division
+
+Operands for all arithmetic operations are assumed to be numbers and must be in canonical form.  See [data types](#data-types) for more
+information.
+
+**Floor division**
+
+Note: that when considering integer division and modulo operations with negative operands the rules applied in the C language and most
+languages (with Python being a notable exception) differ from the string mathematical definition.  Script follows the C language set of
+rules.  Namely:
+1. Non-integer quotients are rounded towards zero
+2. The equation `(a/b)*b + a%b == a` is satisfied by the results
+3. From the above equation it follows that: `a%b == a - (a/b)*b`
+4. In practice if `a` is negative for the modulo operator the result will be negative or zero or negative zero.
+
+
+
+### OP_DIV
+
+    Opcode (decimal): 150
+    Opcode (hex): 0x96
+    
+Return the integer quotient of `a` and `b`.  If the result would be a non-integer it rounded *towards* zero.
+
+    a b OP_DIV -> out
+    
+    where a and b are interpreted as numbers
+    
+The operator must fail if:
+1. `!isnum(a) || !isnum(b)` - either operand is not a valid number
+1. `b == 0` - `b` is equal to any type of zero
+
+Impact of successful execution:
+* stack memory use reduced (one element removed)
+* number of elements on stack is reduced by one
+
+Unit tests:
+1. `a b OP_DIV -> failure` where `!isnum(a)` or `!isnum(b)` - both operands must be valid numbers
+2. `a 0 OP_DIV -> failure` - division by positive zero (all sizes), negative zero (all sizes), `OP_0` 
+3. `a b OP_DIV -> out` where `a < 0` the result must be negative or any form of zero. 
+4. check valid results for operands of different lengths `1..4`
     
 ### OP_MOD
+
+    Opcode (decimal): 151
+    Opcode (hex): 0x97
 
 Returns the remainder after dividing a by b.  The output will be represented using the least number of bytes required. 
 
 	a b OP_MOD → out
 	
+	where a and b are interpreted as numbers
+	
 The operator must fail if:
 1. `!isnum(a) || !isnum(b)` - either operand is not a valid number
-1. `a < 0` - `a` is a negative number including negative zero
-1. `b <= 0` - `b` is a negative number or equal to any type of zero
+1. `b == 0` - `b` is a negative number or equal to any type of zero
 
 Impact of successful execution:
 * stack memory use reduced (one element removed)
@@ -261,7 +357,22 @@ Unit tests:
 3. `a b OP_MOD -> failure` where `a < 0`, `b < 0` - both operands must be positive
 4. check valid results for operands of different lengths `1..4`
 
+## New operations
+
+#### DRAFT DISCUSSION
+
+In order to facilitate the "operands must be equal length" rule for bitwise logic.  An additional operator is required to give script
+authors a reasonable way of padding operands when required.  A clear distinction must be made between padding an array of bytes and padding
+a number.
+        
+#### END DRAFT DISCUSSION
+
 ### OP_BIN2NUM
+
+*`OP_BIN2NUM` replaces `OP_LEFT` and uses it's opcode*
+
+    Opcode (decimal): 128
+    Opcode (hex): 0x80
 
 Convert the binary array into a valid numeric value, including minimal encoding.
 
@@ -279,9 +390,16 @@ The operator must fail if:
      
 ### OP_NUM2BIN
 
+*`OP_BIN2NUM` replaces `OP_RIGHT` and uses it's opcode*
+
+    Opcode (decimal): 129
+    Opcode (hex): 0x81
+
 Convert the numeric value into a binary array of a certain size, taking account of the sign bit.
 
     `n m OP_NUM2BIN -> x`
+    
+    where m and n are interpreted as numbers
 
 See also `OP_BIN2NUM`.
 
@@ -291,148 +409,9 @@ Examples:
 
 The operator must fail if:
 1. `n` or `m` are not valid numeric values
-1. `m < len(n)`. `n` is a valid numeric value, therefore it is already in minimal representation 
-2. `m > MAX_SCRIPT_ELEMENT_SIZE` - the result would be too large
+2. `m < len(n)`. `n` is a valid numeric value, therefore it is already in minimal representation 
+3. `m > MAX_SCRIPT_ELEMENT_SIZE` - the result would be too large
 
-## Optional new operations
-
-#### DRAFT DISCUSSION
-
-In order to facilitate the "operands must be equal length" rule for bitwise logic.  An additional operator is required to give script
-authors a reasonable way of padding operands when required.  Four options are presented.  Only one is required to fullfill the stated purpose.
-
-TODO: assign op code bytes to each accepted operator.
-        
-#### END DRAFT DISCUSSION
-
-
-### OP_ZEROES
-Produces byte vector of length `n` containing all zero bytes
-
-	n OP_ZEROES → out
-	
-Examples:
-* `2 OP_ZEROES -> 0x0000`
-* `OP_0 OP_ZEROES -> OP_0`
-	
-The operator must fail if:
-1. `!isnum(n)` - `n` is not a number
-2. `n < 0` - the length must be positive
-2. `n > MAX_SCRIPT_ELEMENT_SIZE` - the length of the result would be too large
-
-Notes:
-* `n = 0` is valid, a zero length byte string is produced.  This is the functional equilent of OP_0
-
-Impact of successful execution:
-* stack memory use increased by `n - len(n)`, maximum `MAX_SCRIPT_ELEMENT_SIZE`
-* number of elements on stack is constant 
-
-Unit tests:
-1. `0 OP_ZEROES -> OP_0` for all values of 0 (positive zero, negative zero, `OP_0`)
-2. `n OP_ZEROES -> failure` where `!isnum(n)`
-3. `n OP_ZEROES -> failure` where `n < 0`
-4. `n OP_ZEROES -> failure` where `n > MAX_SCRIPT_ELEMENT_SIZE`
-5. valid samples
- 
-
-### OP_REPEAT
-Produce array of repeated bytes.
-
-	x n OP_REPEAT → out
-	
-Examples: 
-* `0x00 2 OP_REPEAT -> 0x0000`
-* `0x11FF 3 OP_REPEAT -> 0x11FF11FF11FF`
-	
-The operator must fail if:
-1. `!isnum(n)` - `n` is not a number
-2. `n < 0` - `n` is negative 
-2. `len(x)*n > MAX_SCRIPT_ELEMENT_SIZE` - the length of the result would be too large
-
-Notes:
-* repeating an array zero times is a valid operation and results in `OP_0`
-* repeating an empty array (`x = OP_0`) is a valid operation and produces an empty array (`OP_0`)
-
-Impact of successful execution:
-* stack memory use increased by `(len(x) * (n - 1)) - len(n)`, maximum `MAX_SCRIPT_ELEMENT_SIZE`
-* number of elements on stack is reduced by one
-
-Unit tests: 
-1. `x n OP_REPEAT -> failure` where `!isnum(n)` - fails if `n` not a number
-2. `x -1 OP_REPEAT -> failure` - fails if `n < 0`
-3. `x 0 OP_REPEAT -> OP_0` - repeating any array zero times results in `OP_0`, for all types of zero
-4. `0 n OP_REPEAT → OP_0` – repeating an empty array an arbitrary number of times produces an empty array
-5. `0 (MAX_SCRIPT_ELEMENT_SIZE + 1) OP_REPEAT -> OP_0` - should not fail because output will still be `OP_0`
-5. `1 (MAX_SCRIPT_ELEMENT_SIZE + 1) OP_REPEAT -> failure` - result is too large  
-6. `large n OP_REPEAT -> out` - failure when `len(large) * n > MAX_SCRIPT_ELEMENT_SIZE`   
-7. valid samples
-
-
-### OP_PADLEFT
-Pad the left of the byte array with zeroes until `len(out) = n`
-
-	x n OP_PADLEFT → out
-	
-Examples:
-* `0x1122 4 OP_PADLEFT -> 0x00001122`
-	
-The operator must fail if:
-1. `!isnum(n)` - `n` is not a number
-2. `n < 0` - `n` is less than zero
-3. `n > MAX_SCRIPT_ELEMENT_SIZE` - the length of the result would be too large
-
-Notes:
-* `n = 0` is valid
-* `n <= len(x)` is valid and produces and output of `x`
-
-Impact of successful execution:
-* stack memory use increased by `max(n - len(n), 0)`, maximum `MAX_SCRIPT_ELEMENT_SIZE`
-* number of elements on stack is reduced by one
-
-Unit tests:
-1. `x n OP_PADLEFT -> failure` where `!isnum(n)` - fails if `n` not a number
-2. `x -1 OP_PADLEFT -> failure` - fails if `n < 0`
-3. `x 0 OP_PADLEFT -> x` for all number zero
-4. `0 (MAX_SCRIPT_ELEMENT_SIZE + 1) OP_PADLEFT -> failure` - too large
-5. `0 MAX_SCRIPT_ELEMENT_SIZE OP_PADLEFT -> out` - `out` is an array of `MAX_SCRIPT_ELEMENT_SIZE` zeros
-6. `large 1 OP_PADLEFT -> failure` where `len(large) = MAX_SCRIPT_ELEMENT_SIZE`
-7. valid samples
-
-### OP_MATCHLEN
-
-Match the length of `x1` and `x2` by padding the the shorter of the two to the left with zeroes.
-
-    `x1 x2 OP_MATCHLEN` -> out
-
-Examples:
-* `0x1122 0xAA OP_MATCHLEN -> 0x1122 0x00AA`
-* `0x11 0xAABB OP_MATCHLEN -> 0x0011 0xAABB`
-
-Operand consumption:
-
-Operand stack elements are not consumed by this operation.  However the shortest length operand will be replaced with it's padded
-equivilent.
-
-The operator must fail if:
-1. `len(x1) or len(x2) > MAX_SCRIPT_ELEMENT_SIZE`
-
-Notes:
-* Where `len(x1) == 0` `x1` will be a replaced with a zero byte array of size `len(x2)` 
-* Where `len(x2) == 0` `x2` will be a replaced with a zero byte array of size `len(x1)`
-* Where `len(x1) == len(x2)` this is not a failure condition but is effectively a `NOOP`
-
-Impact of successful execution:
-* stack memory use increased by `abs(len(x1) - len(x2))`, maximum `MAX_SCRIPT_ELEMENT_SIZE`
-* number of elements on stack is constant.
-
-Unit tests:
-1. `x1 x2 OP_MATCHLEN -> failure` where `len(x1) or len(x2) = MAX_SCRIPT_ELEMENT_SIZE`
-1. `OP_0 x2 OP_MATCHLEN -> out` replaces OP_0 with zero byte array of `len(x2)`
-1. `x1 OP_0 OP_MATCHLEN -> out` replaces OP_0 with zero byte array of `len(x1)`
-1. `OP_0 OP_0 OP_MATCHLEN -> out` top two elements of stack remain unchanged
-1. `long_x1 short_x2 OP_MATCHLEN -> out` `short_x2` is padded to `len(long_x1)`
-1. `short_x1 long_x2 OP_MATCHLEN -> out` `short_x1` is padded to `len(long_x2)`
-7. valid samples
 
 ## Reference implementation
 
