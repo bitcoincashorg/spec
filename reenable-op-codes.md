@@ -390,7 +390,7 @@ The operator must fail if:
      
 ### OP_NUM2BIN
 
-*`OP_BIN2NUM` replaces `OP_RIGHT` and uses it's opcode*
+*`OP_NUM2BIN` replaces `OP_RIGHT` and uses it's opcode*
 
     Opcode (decimal): 129
     Opcode (hex): 0x81
