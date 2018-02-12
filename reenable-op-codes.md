@@ -204,7 +204,7 @@ primitive can be used to simulate multiple more complex operations.
 The operator must fail if:
 * `!isnum(n)` - `n` is not a number
 * `n < 0` - `n` is negative
-* `n >= len(x)` - `n` is too high
+* `n > len(x)` - `n` is too high
 
 Impact of successful execution:
 * stack memory use is constant (slight reduction by `len(n)`)
@@ -213,8 +213,8 @@ Impact of successful execution:
 Unit tests:
 * `OP_0 0 OP_SPLIT -> OP_0 OP_0` - execution of OP_SPLIT on empty array results in two empty arrays.
 * `x 0 OP_SPLIT -> OP_0 x`
-* `x len(x) OP_SPLIT -> x OP_0`
-* `x len(x)+1 OP_SPLIT -> FAIL`
+* `x len(x) - 1 OP_SPLIT -> x OP_0`
+* `x len(x) OP_SPLIT -> FAIL`
 
 ## Bitwise logic
 
