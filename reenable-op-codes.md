@@ -380,7 +380,12 @@ Examples:
 The operator must fail if:
 1. the numeric value is out of the range of acceptable numeric values (currently size is limited to 4 bytes)
 
-     
+Unit tests:
+1. `a OP_BIN2NUM -> failure`, when `a` is a binary array whose numeric value is too large to fit into the numeric type, for both positive and negative values. 
+1. `0x00 OP_BIN2NUM -> OP_0`. Arrays of zero bytes, of various lengths, should produce an OP_0 (zero length array). 
+2. `0x00000000000001 OP_BIN2NUM -> 0x01`. A large binary array, whose numeric value would fit in the numeric type, is a valid operand.
+1. `0x80000000000001 OP_BIN2NUM -> 0x81`. Same as above, for negative values.  
+ 
 ### OP_NUM2BIN
 
 *`OP_NUM2BIN` replaces `OP_RIGHT` and uses it's opcode*
@@ -405,6 +410,10 @@ The operator must fail if:
 2. `m < len(n)`. `n` is a valid numeric value, therefore it is already in minimal representation. 
 3. `m > MAX_SCRIPT_ELEMENT_SIZE`. The result would be too large.
 
+Unit tests:
+1. `n m OP_NUM2BIN -> failure` where `!isnum(n)` or `!isnum(m)`. Both operands must be valid numbers.
+2. `0x0100 1 OP_NUM2BIN -> failure`. Trying to produce a binary array which is smaller than the minimum size needed to contain the number.
+3. `0x01 (MAX_SCRIPT_ELEMENT_SIZE+1) OP_NUM2BIN -> failure`. Trying to produce an array which is too large.
 
 ## Reference implementation
 
