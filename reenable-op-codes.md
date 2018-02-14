@@ -298,13 +298,12 @@ information.
 **Floor division**
 
 Note: that when considering integer division and modulo operations with negative operands the rules applied in the C language and most
-languages (with Python being a notable exception) differ from the string mathematical definition.  Script follows the C language set of
+languages (with Python being a notable exception) differ from the strict mathematical definition.  Script follows the C language set of
 rules.  Namely:
 1. Non-integer quotients are rounded towards zero
 2. The equation `(a/b)*b + a%b == a` is satisfied by the results
 3. From the above equation it follows that: `a%b == a - (a/b)*b`
 4. In practice if `a` is negative for the modulo operator the result will be negative or zero or negative zero.
-
 
 
 ### OP_DIV
