@@ -190,7 +190,7 @@ Examples:
 * `0x001122 0 OP_SPLIT -> OP_0 0x001122`
 * `0x001122 1 OP_SPLIT -> 0x00 0x1122`
 * `0x001122 2 OP_SPLIT -> 0x0011 0x22`
-* `0x001122 3 OP_SPLIT -> 0x00112233 OP_0`
+* `0x001122 3 OP_SPLIT -> 0x001122 OP_0`
 
 Notes:
 * this operator has been introduced as a replacement for the previous `OP_SUBSTR`, `OP_LEFT`and `OP_RIGHT`. All three operators can be
