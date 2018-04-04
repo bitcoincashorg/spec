@@ -4,7 +4,8 @@ Version 1.0, 2017-10-13
 
 ## Abstract
 
-This document describes a proposed address format to be used on Bitcoin Cash. It is a base32 encoded format using BCH[[1]](#bch) codes as checksum and that can be used directly in links or QR codes.
+This document describes a proposed temporary address format to be used on Bitcoin Cash. The purpose of this new address format is to ease confusion between new users getting Bitcoin Cash addresses mixed up with addresses of another currency. The new
+address format is scheduled to be reverted to the original Base58 format after the era of cofusion has passed. It is a base32 encoded format using BCH[[1]](#bch) codes as checksum and that can be used directly in links or QR codes.
 
 This format reuses the work done for Bech32[[2]](#bip173) and is similar in some aspects, but improves on others.
 
@@ -142,6 +143,23 @@ The following addresses are given in the legacy and new format.
 | 3CWFddi6m4ndiGyKqzYvsFYagqDLPVMTzC | bitcoincash:ppm2qsznhks23z7629mms6s4cwef74vcwvn0h829pq |
 | 3LDsS579y7sruadqu11beEJoTjdFiFCdX4 | bitcoincash:pr95sy3j9xwd2ap32xkykttr4cvcu7as4yc93ky28e |
 | 31nwvkZwyPdgzjBJZXfDmSWsC4ZLKpYyUw | bitcoincash:pqq3728yw0y47sqn6l2na30mcw6zm78dzq5ucqzc37 |
+
+## Schedule for reverting back to Base58
+
+After a certain amunt of time has passed, all wallets are strongly encouraged to revert back to Base58. The following criteria will determine when sufficient time has passed since the fork that most users will no longer be confused by sharing address space with another currency claiming a similar name to Bitcoin Cash.
+
+At some time after September 2018, the Bitcoin Cash developers will reasses the situation to determine if the reversion process should commence. If consensus can not be reached at that time (September 2018), the process will be tried again every 6 months until reversion is agreed to be safly commenced.
+
+# Reversion procedure
+
+1. Encode all addresses to Base58 "version byte zero" addresses in the UI, for both historical transactions and new deposit addresses.
+2. Any Base58 address encoded with version byte of 5 will be considered invalid. Base58 encoded addresses starting with version byte 6 will be treated as a P2SH address. The purpose of this change is to prevent new users from accidentally sending BCH coins to an address meant for another currency that uses a script form that is hostile to spending on the BCH chain.
+3. "Cashaddr" addresses will still be valid, but when a cashaddr address is loaded into the "send" UI, notice will be shown to the user alerting them that they are using an old format, and to instruct the user to tell the receiver that they need to update their wallet to a newer version that has reverted to the Base58 format.
+4. In the options screen, there can exist an option that puts the wallet in "cashaddr mode", which will show all addresses in the Cashaddr format. If this option is selected, the user should be notified that they are electing to see their address displayed in an obsolete format, and that this old format may prevent other people from being able to read their addresses.
+
+## After reversion
+
+This doucment shall be kept in the "spec" archive and reactivated if at some point in the future another currency forks Bitcoin Cash and it becomes necessary to change the address format to avoid confusion. Wallets may indefinitely keep support for reading Cashaddr, but always must rertain code that alerts the user that they are using an out-of-date address encoding when Cashaddr is detected.
 
 ## References
 
