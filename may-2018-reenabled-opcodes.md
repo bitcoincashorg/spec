@@ -319,6 +319,43 @@ Unit tests:
 
 ## New operations
 
+### OP_NUM2BIN
+
+*`OP_NUM2BIN` replaces `OP_LEFT` and uses it's opcode*
+
+    Opcode (decimal): 128
+    Opcode (hex): 0x80
+
+Convert the numeric value into a byte sequence of a certain size, taking account of the sign bit.
+The byte sequence produced uses the little-endian encoding.
+
+    `n m OP_NUM2BIN -> x`
+    
+    where m and n are interpreted as numeric values
+
+See also `OP_BIN2NUM`.
+
+Examples:
+* `2 4 OP_NUM2BIN -> {0x02, 0x00, 0x00, 0x00}`
+* `-5 4 OP_NUM2BIN -> {0x05, 0x00, 0x00, 0x80}`
+
+The operator must fail if:
+1. `n` or `m` are not numeric values.
+2. `m < len(n)`. `n` is a numeric value, therefore it must already be in minimal representation, so it cannot fit into
+   a byte sequence which is smaller than the length of `n`. 
+3. `m > MAX_SCRIPT_ELEMENT_SIZE`. The result would be too large.
+
+Impact of successful execution:
+* stack memory use will be increased by `m - len(n) - len(m)`, maximum increase is when `m = MAX_SCRIPT_ELEMENT_SIZE`
+* number of elements on stack is reduced by one
+
+Unit tests:
+1. `n m OP_NUM2BIN -> failure` where `!isnum(n)` or `!isnum(m)`. Both operands must be numeric values.
+2. `256 1 OP_NUM2BIN -> failure`. Trying to produce a byte sequence which is smaller than the minimum size needed to
+   contain the numeric value.
+3. `1 (MAX_SCRIPT_ELEMENT_SIZE+1) OP_NUM2BIN -> failure`. Trying to produce an array which is too large.
+4. other valid parameters with various results
+
 ### OP_BIN2NUM
 
 *`OP_BIN2NUM` replaces `OP_RIGHT` and uses it's opcode*
@@ -359,43 +396,6 @@ Unit tests:
 7. `{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80} OP_BIN2NUM -> OP_0`. Large negative zero, in a byte sequence, should produce zero.
 8. other valid parameters with various results
  
-### OP_NUM2BIN
-
-*`OP_NUM2BIN` replaces `OP_LEFT` and uses it's opcode*
-
-    Opcode (decimal): 128
-    Opcode (hex): 0x80
-
-Convert the numeric value into a byte sequence of a certain size, taking account of the sign bit.
-The byte sequence produced uses the little-endian encoding.
-
-    `n m OP_NUM2BIN -> x`
-    
-    where m and n are interpreted as numeric values
-
-See also `OP_BIN2NUM`.
-
-Examples:
-* `2 4 OP_NUM2BIN -> {0x02, 0x00, 0x00, 0x00}`
-* `-5 4 OP_NUM2BIN -> {0x05, 0x00, 0x00, 0x80}`
-
-The operator must fail if:
-1. `n` or `m` are not numeric values.
-2. `m < len(n)`. `n` is a numeric value, therefore it must already be in minimal representation, so it cannot fit into
-   a byte sequence which is smaller than the length of `n`. 
-3. `m > MAX_SCRIPT_ELEMENT_SIZE`. The result would be too large.
-
-Impact of successful execution:
-* stack memory use will be increased by `m - len(n) - len(m)`, maximum increase is when `m = MAX_SCRIPT_ELEMENT_SIZE`
-* number of elements on stack is reduced by one
-
-Unit tests:
-1. `n m OP_NUM2BIN -> failure` where `!isnum(n)` or `!isnum(m)`. Both operands must be numeric values.
-2. `256 1 OP_NUM2BIN -> failure`. Trying to produce a byte sequence which is smaller than the minimum size needed to
-   contain the numeric value.
-3. `1 (MAX_SCRIPT_ELEMENT_SIZE+1) OP_NUM2BIN -> failure`. Trying to produce an array which is too large.
-4. other valid parameters with various results
-
 ## Reference implementation
 
 * OP_AND, OP_OR, OP_XOR: https://reviews.bitcoinabc.org/D1211
