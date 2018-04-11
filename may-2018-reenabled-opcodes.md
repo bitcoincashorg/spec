@@ -321,10 +321,10 @@ Unit tests:
 
 ### OP_BIN2NUM
 
-*`OP_BIN2NUM` replaces `OP_LEFT` and uses it's opcode*
+*`OP_BIN2NUM` replaces `OP_RIGHT` and uses it's opcode*
 
-    Opcode (decimal): 128
-    Opcode (hex): 0x80
+    Opcode (decimal): 129
+    Opcode (hex): 0x81
 
 Convert the byte sequence into a numeric value, including minimal encoding. The byte sequence must encode the value in little-endian encoding.
 
@@ -361,10 +361,10 @@ Unit tests:
  
 ### OP_NUM2BIN
 
-*`OP_NUM2BIN` replaces `OP_RIGHT` and uses it's opcode*
+*`OP_NUM2BIN` replaces `OP_LEFT` and uses it's opcode*
 
-    Opcode (decimal): 129
-    Opcode (hex): 0x81
+    Opcode (decimal): 128
+    Opcode (hex): 0x80
 
 Convert the numeric value into a byte sequence of a certain size, taking account of the sign bit.
 The byte sequence produced uses the little-endian encoding.
