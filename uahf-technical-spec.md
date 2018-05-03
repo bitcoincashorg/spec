@@ -1,7 +1,10 @@
-# UAHF Technical Specification
-
-Version 1.6, 2017-07-24
-
+---
+layout: page
+title: UAHF Technical Specification
+date: 2017-07-24
+activation: 1501590000
+version: 1.6
+---
 
 ## Introduction
 

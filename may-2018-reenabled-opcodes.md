@@ -1,6 +1,10 @@
-# Restore disabled script opcodes, May 2018
-
-Version 0.3, 2018-04-05
+---
+layout: page
+title: Restore disabled script opcodes, May 2018
+date: 2018-04-05
+activation: 1526400000
+version: 0.3
+---
 
 ## Introduction
 

@@ -1,6 +1,10 @@
-# May 2018 Hardfork Specification
-
-Version 1.1, 2018-04-09
+---
+layout: page
+title: May 2018 Hardfork Specification
+date: 2018-04-09
+activation: 1526400000
+version: 1.1
+---
 
 ## Summary
 
