@@ -1,6 +1,10 @@
-# Address format for Bitcoin Cash
-
-Version 1.0, 2017-10-13
+---
+layout: page
+title: Address format for Bitcoin Cash
+date: 2017-10-13
+activation: 1515888000
+version: 1.0
+---
 
 ## Abstract
 
